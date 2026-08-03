@@ -52,6 +52,8 @@
     font-weight: 600;
     color: var(--ink-2);
   }
+  
+
 </style>
 </head>
 <body>
@@ -101,21 +103,27 @@
 
     <!-- Weekday labels -->
     <div class="cal-weekrow">
-      <div class="cal-wd sun">อา</div>
-      <div class="cal-wd">จ</div>
-      <div class="cal-wd">อ</div>
-      <div class="cal-wd">พ</div>
-      <div class="cal-wd">พฤ</div>
-      <div class="cal-wd">ศ</div>
-      <div class="cal-wd sat">ส</div>
+      <div class="cal-wd sun" data-i18n="wd-sun">อา</div>
+      <div class="cal-wd" data-i18n="wd-mon">จ</div>
+      <div class="cal-wd" data-i18n="wd-tue">อ</div>
+      <div class="cal-wd" data-i18n="wd-wed">พ</div>
+      <div class="cal-wd" data-i18n="wd-thu">พฤ</div>
+      <div class="cal-wd" data-i18n="wd-fri">ศ</div>
+      <div class="cal-wd sat" data-i18n="wd-sat">ส</div>
     </div>
 
     <!-- Calendar days (JS) -->
     <div class="cal-grid" id="cal-grid"></div>
 
   </div>
-
-
+  
+  <div style="margin: 16px 20px 4px; font-size:10px; color:var(--ink-3); text-align:center; line-height:1.4;" data-i18n="contact-admin-notice">
+    เมื่อยืนยันการจองแล้ว หากต้องการยกเลิกหรือแก้ไขข้อมูลใดๆ จะต้องติดต่อแอดมินผ่าน line oa
+  </div>
+  <button type="button" style="background:none; border:none; color:var(--ink-3); font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:4px; margin: 0 auto; padding:4px 8px; cursor:pointer;" onclick="contactAdmin()">
+    <span class="material-symbols-outlined" style="font-size:12px;">chat</span>
+    <span style="text-decoration:underline;" data-i18n="contact-admin-btn">ติดต่อแอดมิน</span>
+  </button>
 
 </div>
 
@@ -135,8 +143,8 @@
       <form id="booking-form" novalidate>
 
         <!-- Service selection -->
-        <div>
-          <div class="form-label" data-i18n="form-service">Select Service</div>
+        <div class="premium-card">
+          <div class="form-label" data-i18n="form-service" style="margin-bottom:12px;">Select Service</div>
           <div style="display:flex; flex-direction:column; gap:8px;">
             
             <input type="radio" name="service" id="svc1" value="fitting" class="svc-radio" checked>
@@ -160,60 +168,64 @@
           </div>
         </div>
 
-        <div class="divider"></div>
-
-        <!-- Time slots -->
-        <div style="margin: 14px 0;">
-          <div class="form-label" data-i18n="form-time">Select Time Slot</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
-
-            <input type="radio" name="time" id="t1" value="10:00-12:00" class="time-radio" checked>
-            <label for="t1" class="time-label">
-              <span>10:00 – 12:00</span>
-              <span class="time-avail">3 <span data-i18n="slot-avail">slots available</span></span>
-            </label>
-
-            <input type="radio" name="time" id="t2" value="13:00-15:00" class="time-radio">
-            <label for="t2" class="time-label">
-              <span>13:00 – 15:00</span>
-              <span class="time-avail">2 <span data-i18n="slot-avail">slots available</span></span>
-            </label>
-
-            <label class="time-label booked">
-              <span>15:00 – 17:00</span>
-              <span class="time-avail" style="text-decoration:none;" data-i18n="slot-full">Fully booked</span>
-            </label>
-
-            <input type="radio" name="time" id="t4" value="17:00-19:00" class="time-radio">
-            <label for="t4" class="time-label">
-              <span>17:00 – 19:00</span>
-              <span class="time-avail">4 <span data-i18n="slot-avail">slots available</span></span>
-            </label>
-
+        <!-- Number of People selection -->
+        <div class="premium-card" style="display:flex; flex-direction:column; align-items:center;">
+          <div class="form-label" style="text-align:center; margin-bottom:12px;">
+            <span data-i18n="form-people">Number of People</span>
           </div>
+          
+          <div class="stepper-wrap">
+            <button type="button" class="stepper-btn" onclick="updateStepper(-1)">
+              <span class="material-symbols-outlined">remove</span>
+            </button>
+            <div class="stepper-val" id="num-people-val">1</div>
+            <button type="button" class="stepper-btn" onclick="updateStepper(1)">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+          </div>
+          <input type="hidden" id="num-people" value="1">
         </div>
 
-        <div class="divider"></div>
-
-        <!-- Personal info -->
-        <div style="margin-top:14px; display:flex; flex-direction:column; gap:8px;">
-          <div class="form-label" data-i18n="form-details">Your Details</div>
-
-          <div class="input-wrap">
-            <span class="material-symbols-outlined input-icon" style="font-size:16px;">person</span>
-            <input class="form-input" type="text" id="full_name" placeholder="Full name" autocomplete="name" data-i18n="form-name" required>
+        <div id="booking-details-container">
+          <!-- Time slots -->
+          <div class="premium-card">
+            <div class="form-label" data-i18n="form-time" style="margin-bottom:12px;">Select Time Slot</div>
+            <div id="time-slots-container" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:7px;"></div>
           </div>
 
-          <div class="input-wrap">
-            <span class="material-symbols-outlined input-icon" style="font-size:16px;">call</span>
-            <input class="form-input" type="tel" id="phone" placeholder="Phone number" autocomplete="tel" data-i18n="form-phone" required>
+          <!-- Personal info -->
+          <div class="premium-card" style="display:flex; flex-direction:column; gap:8px;">
+            <div class="form-label" data-i18n="form-details" style="margin-bottom:4px;">Your Details</div>
+
+            <div id="names-container" style="display:flex; flex-direction:column; gap:8px;">
+              <div class="input-wrap">
+                <span class="material-symbols-outlined input-icon" style="font-size:16px;">person</span>
+                <input class="form-input name-input" type="text" placeholder="Full name (Person 1)" data-i18n-dynamic="form-name-1" autocomplete="name" required>
+              </div>
+            </div>
+
+            <div class="input-wrap">
+              <span class="material-symbols-outlined input-icon" style="font-size:16px;">call</span>
+              <input class="form-input" type="tel" id="phone" placeholder="Phone number" autocomplete="tel" data-i18n="form-phone" required>
+            </div>
           </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn" style="margin-top:8px;">
+            <span class="material-symbols-outlined" style="font-size:16px; font-variation-settings:'FILL' 1;">check_circle</span>
+            <span data-i18n="btn-confirm">Confirm Booking</span>
+          </button>
         </div>
-
-        <button type="submit" class="submit-btn" id="submit-btn">
-          <span class="material-symbols-outlined" style="font-size:16px; font-variation-settings:'FILL' 1;">check_circle</span>
-          <span data-i18n="btn-confirm">Confirm Booking</span>
-        </button>
+        
+        <!-- Contact Admin Message (Hidden by default) -->
+        <div id="contact-admin-msg" style="display:none; text-align:center; margin-top:24px;">
+          <div style="font-size:14px; color:var(--ink-2); margin-bottom:12px;" data-i18n="people-contact-admin">
+            For more than 7 people, please contact the admin directly.
+          </div>
+          <button type="button" class="submit-btn" style="width:auto; padding:8px 16px; font-size:14px; display:inline-flex; margin:0 auto;" onclick="contactAdmin()">
+            <span class="material-symbols-outlined" style="font-size:18px;">chat</span>
+            <span data-i18n="contact-admin-btn">Contact Admin</span>
+          </button>
+        </div>
 
       </form>
     </div>
@@ -262,14 +274,20 @@
   let current = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
   let selDay = TODAY.getDate(), selMonth = TODAY.getMonth(), selYear = TODAY.getFullYear();
 
-  const thaiMonths = ['January','February','March','April',
-    'May','June','July','August',
-    'September','October','November','December'];
-  const thaiDays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const monthNames = {
+    en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    th: ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม']
+  };
+  const dayNames = {
+    en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    th: ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์']
+  };
 
-  function renderCal() {
+  window.renderCal = function renderCal() {
     const yr = current.getFullYear(), mo = current.getMonth();
-    document.getElementById('cal-month-label').textContent = `${thaiMonths[mo]} ${yr + 543}`;
+    const lang = localStorage.getItem('lang') || 'th';
+    const displayYr = lang === 'th' ? yr + 543 : yr;
+    document.getElementById('cal-month-label').textContent = `${monthNames[lang][mo]} ${displayYr}`;
     const grid = document.getElementById('cal-grid');
     grid.innerHTML = '';
     const firstDow = new Date(yr, mo, 1).getDay();
@@ -295,17 +313,31 @@
       const isToday = d === TODAY.getDate() && mo === TODAY.getMonth() && yr === TODAY.getFullYear();
       if (isToday) cls += ' today';
       if (d === selDay && mo === selMonth && yr === selYear) cls += ' selected';
+      
+      const isPast = new Date(yr, mo, d) < new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+      const isSunday = dow === 0;
+      if (isPast || isSunday) {
+        cls += ' faded';
+        btn.disabled = true;
+      }
+      
       btn.className = cls;
       btn.textContent = d;
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
-        btn.classList.add('selected');
-        selDay = d; selMonth = mo; selYear = yr;
-        const dayName = thaiDays[dow];
-        const dateStr = `${dayName}, ${d} ${thaiMonths[mo]} ${yr}`;
-        document.getElementById('modal-date-title').textContent = `Book — ${dateStr}`;
-        openModal();
-      });
+      
+      if (!isPast) {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
+          btn.classList.add('selected');
+          selDay = d; selMonth = mo; selYear = yr;
+          const lang = localStorage.getItem('lang') || 'th';
+          const displayYr = lang === 'th' ? yr + 543 : yr;
+          const dayName = dayNames[lang][dow];
+          const dateStr = `${dayName}, ${d} ${monthNames[lang][mo]} ${displayYr}`;
+          const bookPrefix = lang === 'th' ? 'จองคิว — ' : 'Book — ';
+          document.getElementById('modal-date-title').textContent = `${bookPrefix}${dateStr}`;
+          openModal();
+        });
+      }
       grid.appendChild(btn);
     }
 
@@ -317,6 +349,17 @@
       el.className = 'cal-day faded';
       el.textContent = d;
       grid.appendChild(el);
+    }
+    
+    // Update modal title if a day is selected
+    if (selDay && selMonth !== undefined && selYear !== undefined) {
+      const dow = new Date(selYear, selMonth, selDay).getDay();
+      const lang = localStorage.getItem('lang') || 'th';
+      const dayName = dayNames[lang][dow];
+      const selDisplayYr = lang === 'th' ? selYear + 543 : selYear;
+      const dateStr = `${dayName}, ${selDay} ${monthNames[lang][selMonth]} ${selDisplayYr}`;
+      const bookPrefix = lang === 'th' ? 'จองคิว — ' : 'Book — ';
+      document.getElementById('modal-date-title').textContent = `${bookPrefix}${dateStr}`;
     }
   }
 
@@ -343,10 +386,28 @@
     selYear = TODAY.getFullYear();
     current = new Date(selYear, selMonth, 1);
     renderCal();
-    const dayName = thaiDays[TODAY.getDay()];
-    const dateStr = `${dayName}, ${selDay} ${thaiMonths[selMonth]} ${selYear}`;
-    document.getElementById('modal-date-title').textContent = `Book — ${dateStr}`;
+    const lang = localStorage.getItem('lang') || 'th';
+    const displayYr = lang === 'th' ? selYear + 543 : selYear;
+    const dayName = dayNames[lang][TODAY.getDay()];
+    const dateStr = `${dayName}, ${selDay} ${monthNames[lang][selMonth]} ${displayYr}`;
+    const bookPrefix = lang === 'th' ? 'จองคิว — ' : 'Book — ';
+    document.getElementById('modal-date-title').textContent = `${bookPrefix}${dateStr}`;
     openModal();
+  }
+
+  window.contactAdmin = async function contactAdmin() {
+    const lang = localStorage.getItem('lang') || 'th';
+    const msg = lang === 'th' ? 'ติดต่อแอดมิน เพื่อจองคิว/แก้ไขการจอง' : 'Contact admin to edit/book';
+    if (!liff.isInClient()) {
+      alert(msg);
+      return;
+    }
+    try {
+      await liff.sendMessages([{ type: 'text', text: msg }]);
+      liff.closeWindow();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
   }
 
   document.getElementById('close-modal').addEventListener('click', closeModal);
@@ -364,9 +425,14 @@
 
   document.getElementById('booking-form').addEventListener('submit', e => {
     e.preventDefault();
-    const name = document.getElementById('full_name').value.trim();
+    const nameInputs = document.querySelectorAll('.name-input');
+    let allNamesValid = true;
+    nameInputs.forEach(input => {
+      if (!input.value.trim()) allNamesValid = false;
+    });
+    
     const phone = document.getElementById('phone').value.trim();
-    if (!name || !phone) return;
+    if (!allNamesValid || !phone) return;
     const btn = document.getElementById('submit-btn');
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-outlined spin" style="font-size:18px;">progress_activity</span> Processing…';
@@ -377,6 +443,102 @@
     }, 1400);
   });
 
+  window.updateStepper = function(delta) {
+    const input = document.getElementById('num-people');
+    let val = parseInt(input.value, 10);
+    val += delta;
+    if (val < 1) val = 1;
+    if (val > 8) val = 8;
+    input.value = val;
+    document.getElementById('num-people-val').textContent = val === 8 ? '8+' : val;
+    handlePeopleChange();
+  };
+
+  window.handlePeopleChange = function handlePeopleChange() {
+    const input = document.getElementById('num-people');
+    if (!input) return;
+    const val = parseInt(input.value, 10);
+    const container = document.getElementById('booking-details-container');
+    const contactMsg = document.getElementById('contact-admin-msg');
+    
+    if (val >= 8) {
+      container.style.display = 'none';
+      contactMsg.style.display = 'block';
+    } else {
+      container.style.display = 'block';
+      contactMsg.style.display = 'none';
+      
+      // Update time slots dynamically
+      let duration = 1;
+      if (val >= 4 && val <= 6) duration = 2;
+      else if (val === 7) duration = 3;
+      
+      const timeContainer = document.getElementById('time-slots-container');
+      if (timeContainer) {
+        timeContainer.innerHTML = '';
+        let checkedAdded = false;
+        
+        for (let hour = 9; hour <= 16; hour++) {
+          const endHour = hour + duration;
+          if (endHour > 17) continue;
+          if (hour < 12 && endHour > 11) continue;
+          
+          const tId = 't' + hour;
+          
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'time';
+          radio.id = tId;
+          radio.value = `${hour}:00`;
+          radio.className = 'time-radio';
+          if (!checkedAdded) {
+            radio.checked = true;
+            checkedAdded = true;
+          }
+          
+          const label = document.createElement('label');
+          label.htmlFor = tId;
+          label.className = 'time-label';
+          
+          const span = document.createElement('span');
+          span.className = 'time-text';
+          span.textContent = `${hour.toString().padStart(2, '0')}:00 – ${endHour.toString().padStart(2, '0')}:00`;
+          
+          label.appendChild(span);
+          timeContainer.appendChild(radio);
+          timeContainer.appendChild(label);
+        }
+      }
+      
+      // Update Name Inputs
+      const namesContainer = document.getElementById('names-container');
+      namesContainer.innerHTML = '';
+      const lang = localStorage.getItem('lang') || 'th';
+      for (let i = 1; i <= val; i++) {
+        const wrap = document.createElement('div');
+        wrap.className = 'input-wrap';
+        
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined input-icon';
+        icon.style.fontSize = '16px';
+        icon.textContent = 'person';
+        
+        const input = document.createElement('input');
+        input.className = 'form-input name-input';
+        input.type = 'text';
+        input.placeholder = lang === 'en' ? `Full name (Person ${i})` : `ชื่อ-นามสกุล (คนที่ ${i})`;
+        input.required = true;
+        if (i === 1) input.autocomplete = 'name';
+        
+        wrap.appendChild(icon);
+        wrap.appendChild(input);
+        namesContainer.appendChild(wrap);
+      }
+    }
+  };
+
+  // Run on initial load to set correct UI state
+  handlePeopleChange();
   renderCal();
 </script>
 </body>

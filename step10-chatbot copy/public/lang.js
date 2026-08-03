@@ -73,11 +73,11 @@ const dictionary = {
   "admin-today-title": { en: "Today's Schedule", th: "ตารางงานวันนี้" },
   "admin-search": { en: "Search client name or service…", th: "ค้นหาชื่อลูกค้าหรือบริการ..." },
   "admin-stat-today": { en: "Today", th: "วันนี้" },
-  "admin-stat-pending": { en: "Pending", th: "รอดำเนินการ" },
+  "admin-stat-pending": { en: "Service Queue", th: "คิวบริการ" },
   "admin-stat-done": { en: "Done", th: "เสร็จสิ้น" },
   "admin-tab-monthly": { en: "Monthly", th: "รายเดือน" },
   "admin-filter-all": { en: "All", th: "ทั้งหมด" },
-  "admin-filter-pending": { en: "Pending", th: "รออนุมัติ" },
+  "admin-filter-pending": { en: "Service Queue", th: "คิวบริการ" },
   "admin-filter-done": { en: "Done", th: "เสร็จสิ้น" },
   "tab-all": { en: "All", th: "ทั้งหมด" },
   "tab-upcoming": { en: "Upcoming", th: "กำลังจะมาถึง" },
@@ -86,7 +86,37 @@ const dictionary = {
   "badge-done": { en: "Completed", th: "เสร็จสิ้นแล้ว" },
   "btn-followup": { en: "Schedule follow-up", th: "นัดหมายครั้งต่อไป" },
   "admin-monthly": { en: "Monthly Overview", th: "ภาพรวมรายเดือน" },
-  "btn-save": { en: "Save Changes", th: "บันทึกการแก้ไข" }
+  "btn-save": { en: "Save Changes", th: "บันทึกการแก้ไข" },
+  "contact-admin-notice": {
+    en: "Once your booking is confirmed, please contact the admin via LINE OA for any cancellations or modifications.",
+    th: "เมื่อยืนยันการจองแล้ว หากต้องการยกเลิกหรือแก้ไขข้อมูลใดๆ จะต้องติดต่อแอดมินผ่าน line oa"
+  },
+  "contact-admin-btn": {
+    en: "Contact Admin",
+    th: "ติดต่อแอดมิน"
+  },
+  "form-people": { en: "Number of People", th: "จำนวนคน" },
+  "people-contact-admin": { 
+    en: "For more than 7 people, please contact the admin directly.", 
+    th: "สำหรับ 7 ท่านขึ้นไป กรุณาติดต่อแอดมินโดยตรง" 
+  },
+  
+  // Profile.html
+  "prof-guest": { en: "Guest User", th: "ผู้เยี่ยมชม" },
+  "prof-tier": { en: "Member", th: "สมาชิก" },
+  "prof-tab-upcoming": { en: "Upcoming", th: "กำลังจะมาถึง" },
+  "prof-tab-history": { en: "History", th: "ประวัติการใช้งาน" },
+  "bnav-profile": { en: "Profile", th: "โปรไฟล์" },
+  
+  // Edit Modal
+  "admin-edit-title": { en: "Edit Appointment", th: "แก้ไขข้อมูลคิว" },
+  "wd-sun": { en: "S", th: "อา" },
+  "wd-mon": { en: "M", th: "จ" },
+  "wd-tue": { en: "T", th: "อ" },
+  "wd-wed": { en: "W", th: "พ" },
+  "wd-thu": { en: "T", th: "พฤ" },
+  "wd-fri": { en: "F", th: "ศ" },
+  "wd-sat": { en: "S", th: "ส" }
 };
 
 let currentLang = localStorage.getItem('lang') || 'th';
@@ -112,6 +142,25 @@ function applyLang() {
   const langBtn = document.getElementById('lang-toggle-btn');
   if (langBtn) {
     langBtn.textContent = currentLang === 'en' ? 'EN' : 'TH';
+    langBtn.style.background = currentLang === 'en' ? 'var(--ink)' : 'var(--ink-3)';
+  }
+  
+  // Re-render calendar if function exists
+  if (typeof renderCal === 'function') {
+    renderCal();
+  }
+  if (typeof generateDatePicker === 'function') {
+    const oldActive = document.querySelector('.date-pill.active');
+    const oldActiveStr = oldActive ? oldActive.getAttribute('data-date-id') : null;
+    generateDatePicker(oldActiveStr);
+  }
+  
+  if (typeof updateAdminTranslations === 'function') {
+    updateAdminTranslations();
+  }
+  
+  if (typeof handlePeopleChange === 'function') {
+    handlePeopleChange();
   }
 }
 

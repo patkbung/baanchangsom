@@ -298,18 +298,7 @@
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
     }
     
-    .lang-btn {
-      background: var(--ink-3);
-      color: var(--white);
-      border: none;
-      border-radius: 100px;
-      padding: 4px 8px;
-      font-size: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .lang-btn:hover { background: var(--ink); }
+
   </style>
 </head>
 
@@ -481,12 +470,19 @@
           Location</div>
         <div class="addr-text" data-i18n="loc-desc">2705/1 Rama 4 Rd, Khlong Toei<br>Bangkok 10110</div>
       </div>
-      <a href="https://maps.app.goo.gl/vnPFiQRjAGVC3KGv5?g_st=ic" target="_blank"
-        class="addr-map-btn">
-        <span class="material-symbols-outlined"
-          style="font-size:13px; font-variation-settings:'FILL' 1;">location_on</span>
-        <span data-i18n="btn-map">Map</span>
-      </a>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <a href="https://maps.app.goo.gl/vnPFiQRjAGVC3KGv5?g_st=ic" target="_blank"
+          class="addr-map-btn">
+          <span class="material-symbols-outlined"
+            style="font-size:13px; font-variation-settings:'FILL' 1;">location_on</span>
+          <span data-i18n="btn-map">Map</span>
+        </a>
+        <a href="tel:0863246910" class="addr-map-btn" style="background:var(--ink-2);">
+          <span class="material-symbols-outlined"
+            style="font-size:13px; font-variation-settings:'FILL' 1;">call</span>
+          <span>086 324 6910</span>
+        </a>
+      </div>
     </div>
 
   </div>

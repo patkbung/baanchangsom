@@ -399,6 +399,117 @@
             gap: 10px;
         }
 
+        /* Date Picker Scroll */
+        .date-picker-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 10px 20px;
+            margin: 0 -20px 20px -20px;
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .date-picker-scroll::-webkit-scrollbar {
+            display: none;
+            /* Safari/Chrome */
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0 20px 10px 20px;
+        }
+
+        .month-nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.03);
+            transition: 0.2s;
+        }
+
+        .month-nav-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .month-nav-label {
+            font-size: 1.15rem;
+            font-family: 'Lora', serif;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .date-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            height: auto;
+            min-height: 70px;
+            padding: 10px 4px;
+            border-radius: 20px;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            color: var(--ink);
+        }
+
+        .date-pill.faded {
+            opacity: 0.5;
+        }
+
+        .date-pill.active {
+            background: #1f2336;
+            /* Dark premium like image */
+            color: #ffffff;
+            box-shadow: 0 6px 14px rgba(31, 35, 54, 0.3);
+            border-color: #1f2336;
+        }
+
+        .date-pill-day {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            color: #cc3333;
+            /* Red accent */
+            transition: color 0.2s;
+        }
+
+        .date-pill.active .date-pill-day {
+            color: #ff6b6b;
+        }
+
+        .date-pill-num {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .date-pill-count {
+            font-size: 9px;
+            color: var(--ink-3);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .date-pill.active .date-pill-count {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+
         .view-panel.active {
             display: flex;
         }
@@ -415,14 +526,15 @@
             <a href="index.html#pricing" data-i18n="nav-pricing">Pricing</a>
         </div>
         <div class="nav-right">
-            <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()" style="background:var(--ink-3); color:white; border:none; border-radius:100px; padding:4px 8px; font-size:10px; font-weight:700; cursor:pointer;">TH</button>
+            <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()">TH</button>
             <div class="nav-user-text">
                 <div class="nav-user-label" data-i18n="nav-admin">Admin</div>
                 <div class="nav-user-name" id="user-name" data-i18n="nav-guest">Guest</div>
             </div>
             <div class="nav-avatar">
                 <img id="user-avatar" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover;">
-                <span class="material-symbols-outlined" id="user-avatar-fallback" style="font-size:18px; color:var(--ink-3); margin:auto;">person</span>
+                <span class="material-symbols-outlined" id="user-avatar-fallback"
+                    style="font-size:18px; color:var(--ink-3); margin:auto;">person</span>
             </div>
         </div>
     </nav>
@@ -432,7 +544,8 @@
         <!-- Greeting -->
         <div class="anim-1" style="padding:4px 2px 0;">
             <div style="font-size:20px; margin-bottom:3px;">📋</div>
-            <div style="font-size:1.4rem; font-weight:800; letter-spacing:-0.02em; color:var(--ink); line-height:1.1;" data-i18n="admin-today-title">
+            <div style="font-size:1.4rem; font-weight:800; letter-spacing:-0.02em; color:var(--ink); line-height:1.1;"
+                data-i18n="admin-today-title">
                 Today's Schedule</div>
             <div style="font-family:'Lora',serif; font-style:italic; font-size:0.9rem; color:var(--ink-3); margin-top:2px;"
                 id="today-date">Thursday, 31 July 2025</div>
@@ -441,7 +554,8 @@
         <!-- Search -->
         <div class="search-wrap anim-2">
             <span class="material-symbols-outlined search-icon">search</span>
-            <input type="search" class="search-bar" placeholder="Search client name or service…" data-i18n="admin-search">
+            <input type="search" class="search-bar" placeholder="Search client name or service…"
+                data-i18n="admin-search">
         </div>
 
         <!-- Stats -->
@@ -460,16 +574,20 @@
             </div>
         </div>
 
-        <!-- View tabs -->
-        <div class="tabs anim-3" id="view-tabs">
-            <button class="tab-btn active" onclick="switchView(this,'today-view')">
-                <span class="material-symbols-outlined" style="font-size:14px;">today</span>
-                <span data-i18n="admin-stat-today">Today</span>
+        <!-- Month Navigator -->
+        <div class="month-nav anim-3">
+            <button class="month-nav-btn" onclick="prevPickerMonth()">
+                <span class="material-symbols-outlined">chevron_left</span>
             </button>
-            <button class="tab-btn" onclick="switchView(this,'month-view')">
-                <span class="material-symbols-outlined" style="font-size:14px;">bar_chart</span>
-                <span data-i18n="admin-tab-monthly">Monthly</span>
+            <div class="month-nav-label" id="picker-month-label">August 2026</div>
+            <button class="month-nav-btn" onclick="nextPickerMonth()">
+                <span class="material-symbols-outlined">chevron_right</span>
             </button>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="date-picker-scroll anim-3" id="date-picker">
+            <!-- Will be populated by JS -->
         </div>
 
         <!-- ══ TODAY VIEW ══ -->
@@ -477,13 +595,16 @@
 
             <!-- Filter tabs -->
             <div class="tabs" style="background:rgba(0,0,0,0.04);">
-                <button class="tab-btn active" onclick="filterTab(this,'all')" style="font-size:11px;" data-i18n="admin-filter-all">All</button>
-                <button class="tab-btn" onclick="filterTab(this,'pending')" style="font-size:11px;" data-i18n="admin-filter-pending">Pending</button>
-                <button class="tab-btn" onclick="filterTab(this,'done')" style="font-size:11px;" data-i18n="admin-filter-done">Done</button>
+                <button class="tab-btn active" onclick="filterTab(this,'all')" style="font-size:11px;"
+                    data-i18n="admin-filter-all">All</button>
+                <button class="tab-btn" onclick="filterTab(this,'pending')" style="font-size:11px;"
+                    data-i18n="admin-filter-pending">Pending</button>
+                <button class="tab-btn" onclick="filterTab(this,'done')" style="font-size:11px;"
+                    data-i18n="admin-filter-done">Done</button>
             </div>
 
             <!-- Appointment 1 — Bespoke -->
-            <div class="appt-card bespoke anim-4" data-status="pending">
+            <div class="appt-card bespoke anim-4" data-status="pending" data-date="TODAY">
                 <div class="appt-avatar">
                     <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfLoNpwL9s3cubBRx29PNWj7_XiWDtYMXcLNmcI0Miwy96JP0l3mQfryOjCpa4bW6vgwZ6uG_MSPKr8ouiZWmgducLGKeYYAPU0vaYNzDkb_lBuFqO2qhr0JPeP0xFkoemWLdOCiIaOZGycEXFVKuOpUVKtMV8QagJdFMoHuVeATlsSoS_Psi3-qORg-oPnjwqCoBfQBmvUMcHqbkhcl5UVyRzeb_OQnHwqYwxFBfF1zXhgIOkZw-U"
                         alt="">
@@ -493,19 +614,28 @@
                     <div class="appt-top">
                         <div>
                             <div class="appt-name">Thanathorn S.</div>
-                            <span class="badge badge-pending">Pending</span>
+                            <span class="badge badge-pending" data-en="Pending" data-th="คิวบริการ">Pending</span>
                         </div>
                         <div style="display:flex; gap:4px;">
-                            <button class="icon-btn"><span class="material-symbols-outlined"
-                                    style="font-size:14px;">edit</span></button>
+                            <button class="icon-btn"
+                                onclick="openEditModal('Thanathorn S.', '081-234-5678', 2, '2026-08-04', '10:30', 'fitting')"><span
+                                    class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
                             <button class="icon-btn danger"><span class="material-symbols-outlined"
                                     style="font-size:14px;">delete</span></button>
                         </div>
                     </div>
                     <div class="appt-details">
                         <div class="appt-row-detail">
+                            <span class="material-symbols-outlined">group</span>
+                            <span data-en="2 People" data-th="2 ท่าน">2 ท่าน</span>
+                        </div>
+                        <div class="appt-row-detail">
+                            <span class="material-symbols-outlined">event</span>
+                            <span data-en="4 Aug 2026" data-th="4 ส.ค. 2569">4 ส.ค. 2569</span>
+                        </div>
+                        <div class="appt-row-detail">
                             <span class="material-symbols-outlined">schedule</span>
-                            <span>10:30 AM</span>
+                            <span>10:30 - 11:30</span>
                         </div>
                         <div class="appt-row-detail">
                             <span class="material-symbols-outlined">call</span>
@@ -513,21 +643,15 @@
                         </div>
                         <div class="service-chip">
                             <span class="material-symbols-outlined" style="font-size:11px;">straighten</span>
-                            Bespoke Suit Fitting
+                            <span data-en="Bespoke Suit Fitting" data-th="วัดตัวตัดสูท Bespoke">วัดตัวตัดสูท
+                                Bespoke</span>
                         </div>
-                    </div>
-                    <div class="appt-footer">
-                        <button class="next-btn">
-                            <span class="material-symbols-outlined" style="font-size:13px;">add</span>
-                            Schedule follow-up
-                        </button>
-                        <span style="font-size:10px; color:var(--ink-3);">Bespoke</span>
                     </div>
                 </div>
             </div>
 
             <!-- Appointment 2 -->
-            <div class="appt-card anim-4" data-status="pending">
+            <div class="appt-card anim-4" data-status="pending" data-date="TOMORROW">
                 <div class="appt-avatar">
                     <span class="material-symbols-outlined" style="font-size:22px;">person</span>
                     <div class="appt-dot" style="background:#cc6600;"></div>
@@ -536,19 +660,28 @@
                     <div class="appt-top">
                         <div>
                             <div class="appt-name">Attapol K.</div>
-                            <span class="badge badge-pending">Pending</span>
+                            <span class="badge badge-pending" data-en="Pending" data-th="คิวบริการ">Pending</span>
                         </div>
                         <div style="display:flex; gap:4px;">
-                            <button class="icon-btn"><span class="material-symbols-outlined"
-                                    style="font-size:14px;">edit</span></button>
+                            <button class="icon-btn"
+                                onclick="openEditModal('Attapol K.', '092-888-1234', 1, '2026-08-05', '13:15', 'consultation')"><span
+                                    class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
                             <button class="icon-btn danger"><span class="material-symbols-outlined"
                                     style="font-size:14px;">delete</span></button>
                         </div>
                     </div>
                     <div class="appt-details">
                         <div class="appt-row-detail">
+                            <span class="material-symbols-outlined">group</span>
+                            <span data-en="1 Person" data-th="1 ท่าน">1 ท่าน</span>
+                        </div>
+                        <div class="appt-row-detail">
+                            <span class="material-symbols-outlined">event</span>
+                            <span data-en="5 Aug 2026" data-th="5 ส.ค. 2569">5 ส.ค. 2569</span>
+                        </div>
+                        <div class="appt-row-detail">
                             <span class="material-symbols-outlined">schedule</span>
-                            <span>1:15 PM</span>
+                            <span>13:15 - 14:15</span>
                         </div>
                         <div class="appt-row-detail">
                             <span class="material-symbols-outlined">call</span>
@@ -556,20 +689,14 @@
                         </div>
                         <div class="service-chip">
                             <span class="material-symbols-outlined" style="font-size:11px;">checkroom</span>
-                            Fitting Session #1
+                            <span data-en="Fitting Session #1" data-th="ลองสูท ครั้งที่ 1">ลองสูท ครั้งที่ 1</span>
                         </div>
-                    </div>
-                    <div class="appt-footer">
-                        <button class="next-btn">
-                            <span class="material-symbols-outlined" style="font-size:13px;">add</span>
-                            Schedule follow-up
-                        </button>
                     </div>
                 </div>
             </div>
 
             <!-- Appointment 3 — Done -->
-            <div class="appt-card anim-5" data-status="done">
+            <div class="appt-card anim-5" data-status="done" data-date="TODAY">
                 <div class="appt-avatar">
                     <span class="material-symbols-outlined" style="font-size:22px;">person</span>
                     <div class="appt-dot" style="background:#2a7d4f;"></div>
@@ -578,19 +705,28 @@
                     <div class="appt-top">
                         <div>
                             <div class="appt-name">Manop Y.</div>
-                            <span class="badge badge-confirm">Completed</span>
+                            <span class="badge badge-confirm" data-en="Completed" data-th="เสร็จสิ้น">Completed</span>
                         </div>
                         <div style="display:flex; gap:4px;">
-                            <button class="icon-btn"><span class="material-symbols-outlined"
-                                    style="font-size:14px;">edit</span></button>
+                            <button class="icon-btn"
+                                onclick="openEditModal('Manop Y.', '086-555-9988', 3, '2026-08-04', '15:45', 'fabric')"><span
+                                    class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
                             <button class="icon-btn danger"><span class="material-symbols-outlined"
                                     style="font-size:14px;">delete</span></button>
                         </div>
                     </div>
                     <div class="appt-details">
                         <div class="appt-row-detail">
+                            <span class="material-symbols-outlined">group</span>
+                            <span data-en="3 People" data-th="3 ท่าน">3 ท่าน</span>
+                        </div>
+                        <div class="appt-row-detail">
+                            <span class="material-symbols-outlined">event</span>
+                            <span data-en="4 Aug 2026" data-th="4 ส.ค. 2569">4 ส.ค. 2569</span>
+                        </div>
+                        <div class="appt-row-detail">
                             <span class="material-symbols-outlined">schedule</span>
-                            <span>3:45 PM</span>
+                            <span>15:45 - 17:00</span>
                         </div>
                         <div class="appt-row-detail">
                             <span class="material-symbols-outlined">call</span>
@@ -598,14 +734,8 @@
                         </div>
                         <div class="service-chip">
                             <span class="material-symbols-outlined" style="font-size:11px;">texture</span>
-                            Fabric Selection — Wedding
+                            <span data-en="Fabric Selection" data-th="เลือกผ้าตัดสูท">เลือกผ้าตัดสูท</span>
                         </div>
-                    </div>
-                    <div class="appt-footer">
-                        <button class="next-btn">
-                            <span class="material-symbols-outlined" style="font-size:13px;">add</span>
-                            Schedule follow-up
-                        </button>
                     </div>
                 </div>
             </div>
@@ -744,48 +874,106 @@
 
     </div>
 
-    <!-- FAB -->
-    <button class="fab" title="Add new appointment">
-        <span class="material-symbols-outlined" style="font-size:22px;">add</span>
-    </button>
 
-    <!-- Edit Modal -->
+
+    <!-- Edit Appointment Modal -->
     <div class="modal-bg" id="edit-modal" role="dialog" aria-modal="true">
-      <div class="modal-sheet">
-        <div class="modal-handle"><div class="modal-handle-bar"></div></div>
-        <div class="modal-body">
-          <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;">
-            <h2 style="font-family:'Lora',serif; font-size:1.2rem; color:var(--ink); margin-bottom:0;">Edit Appointment</h2>
-            <button type="button" id="close-edit-modal" style="background:none; border:none; cursor:pointer; padding:4px;">
-              <span class="material-symbols-outlined" style="font-size:20px; color:var(--ink-3);">close</span>
-            </button>
-          </div>
-          <form id="edit-form" novalidate>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <div class="input-wrap">
-                <span class="material-symbols-outlined input-icon" style="font-size:16px;">person</span>
-                <input class="form-input" type="text" id="edit_name" required>
-              </div>
-              <div class="input-wrap">
-                <span class="material-symbols-outlined input-icon" style="font-size:16px;">call</span>
-                <input class="form-input" type="tel" id="edit_phone" required>
-              </div>
-              <div class="input-wrap">
-                <span class="material-symbols-outlined input-icon" style="font-size:16px;">schedule</span>
-                <input class="form-input" type="text" id="edit_time" required>
-              </div>
-              <div class="input-wrap">
-                <span class="material-symbols-outlined input-icon" style="font-size:16px;">straighten</span>
-                <input class="form-input" type="text" id="edit_service" required>
-              </div>
+        <div class="modal-sheet">
+            <div class="modal-handle">
+                <div class="modal-handle-bar"></div>
             </div>
-            <button type="button" class="submit-btn" style="margin-top:16px;" onclick="saveEdit()">
-              <span class="material-symbols-outlined" style="font-size:16px; font-variation-settings:'FILL' 1;">save</span>
-              <span data-i18n="btn-save">Save Changes</span>
-            </button>
-          </form>
+            <div class="modal-body">
+
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;">
+                    <h2 id="edit-modal-title"
+                        style="font-family:'Lora',serif; font-size:1.2rem; color:var(--ink); margin-bottom:0;"
+                        data-i18n="admin-edit-title">Edit Appointment</h2>
+                    <button type="button" onclick="closeEditModal()"
+                        style="background:none; border:none; cursor:pointer; padding:4px;">
+                        <span class="material-symbols-outlined" style="font-size:20px; color:var(--ink-3);">close</span>
+                    </button>
+                </div>
+
+                <form id="edit-form" novalidate>
+
+                    <!-- Date Selection -->
+                    <div class="premium-card">
+                        <div class="form-label" data-i18n="form-date" style="margin-bottom:12px;">Date</div>
+                        <input type="date" id="edit-date" class="form-input" required>
+                    </div>
+
+                    <!-- Service selection -->
+                    <div class="premium-card">
+                        <div class="form-label" data-i18n="form-service" style="margin-bottom:12px;">Select Service</div>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <input type="radio" name="edit-service" id="esvc1" value="fitting" class="svc-radio" checked>
+                            <label for="esvc1" class="svc-label">
+                                <div class="svc-icon"><span class="material-symbols-outlined" style="font-size:16px;">straighten</span></div>
+                                <div>
+                                    <div class="svc-name" data-i18n="svc-1-name">Fitting Appointment</div>
+                                    <div class="svc-desc" data-i18n="svc-1-desc">60 min · Measurements & adjustments</div>
+                                </div>
+                            </label>
+
+                            <input type="radio" name="edit-service" id="esvc2" value="consultation" class="svc-radio">
+                            <label for="esvc2" class="svc-label">
+                                <div class="svc-icon"><span class="material-symbols-outlined" style="font-size:16px;">design_services</span></div>
+                                <div>
+                                    <div class="svc-name" data-i18n="svc-2-name">Design Consultation</div>
+                                    <div class="svc-desc" data-i18n="svc-2-desc">45 min · Fabric & pattern selection</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Number of People selection -->
+                    <div class="premium-card" style="display:flex; flex-direction:column; align-items:center;">
+                        <div class="form-label" style="text-align:center; margin-bottom:12px;" data-i18n="form-people">Number of People</div>
+                        <div class="stepper-wrap">
+                            <button type="button" class="stepper-btn" onclick="updateEditStepper(-1)">
+                                <span class="material-symbols-outlined">remove</span>
+                            </button>
+                            <div class="stepper-val" id="edit-num-people-val">1</div>
+                            <button type="button" class="stepper-btn" onclick="updateEditStepper(1)">
+                                <span class="material-symbols-outlined">add</span>
+                            </button>
+                        </div>
+                        <input type="hidden" id="edit-num-people" value="1">
+                    </div>
+
+                    <div id="edit-booking-details-container">
+                        <!-- Time slots -->
+                        <div class="premium-card">
+                            <div class="form-label" data-i18n="form-time" style="margin-bottom:12px;">Select Time Slot</div>
+                            <div id="edit-time-slots-container" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:7px;"></div>
+                        </div>
+
+                        <!-- Personal info -->
+                        <div class="premium-card" style="display:flex; flex-direction:column; gap:8px;">
+                            <div class="form-label" data-i18n="form-details" style="margin-bottom:4px;">Details</div>
+
+                            <div id="edit-names-container" style="display:flex; flex-direction:column; gap:8px;">
+                                <div class="input-wrap">
+                                    <span class="material-symbols-outlined input-icon" style="font-size:16px;">person</span>
+                                    <input class="form-input edit-name-input" type="text" id="edit-name" placeholder="Full name (Person 1)" required>
+                                </div>
+                            </div>
+
+                            <div class="input-wrap">
+                                <span class="material-symbols-outlined input-icon" style="font-size:16px;">call</span>
+                                <input class="form-input" type="tel" id="edit-phone" placeholder="Phone number" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="edit-submit-btn" style="margin-top:8px;">
+                            <span class="material-symbols-outlined" style="font-size:16px; font-variation-settings:'FILL' 1;">save</span>
+                            <span data-i18n="btn-save">Save Changes</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
         </div>
-      </div>
     </div>
 
     <!-- Bottom Nav -->
@@ -830,13 +1018,33 @@
         }
         loadProfile();
 
-        // ── Today date ──
-        const months = ['January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'];
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const now = new Date();
-        document.getElementById('today-date').textContent =
-            `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        // ── Custom Translations ──
+        function updateAdminTranslations() {
+            const lang = localStorage.getItem('lang') || 'th';
+
+            // Header Date
+            const now = new Date();
+            const elHeaderDate = document.getElementById('today-date');
+            if (elHeaderDate) {
+                if (lang === 'en') {
+                    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    const daysEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    elHeaderDate.textContent = `${daysEn[now.getDay()]}, ${now.getDate()} ${monthsEn[now.getMonth()]} ${now.getFullYear()}`;
+                } else {
+                    const monthsTh = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                    const daysTh = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+                    elHeaderDate.textContent = `${daysTh[now.getDay()]}, ${now.getDate()} ${monthsTh[now.getMonth()]} ${now.getFullYear() + 543}`;
+                }
+            }
+
+            // Cards Translation
+            document.querySelectorAll('[data-en][data-th]').forEach(el => {
+                el.textContent = el.getAttribute(`data-${lang}`);
+            });
+        }
+
+        // Initial setup for dates
+        updateAdminTranslations();
 
         // ── View tabs ──
         function switchView(btn, panelId) {
@@ -846,96 +1054,343 @@
             document.getElementById(panelId).classList.add('active');
         }
 
+        // --- Filter State ---
+        let activeDateFilter = 'ALL';
+        let activeStatusFilter = 'all';
+
+        function applyFilters() {
+            const cards = document.querySelectorAll('.appt-card');
+            cards.forEach(card => {
+                const cardDate = card.getAttribute('data-date');
+                const cardStatus = card.dataset.status;
+                const dateMatch = (activeDateFilter === 'ALL' || cardDate === activeDateFilter);
+                const statusMatch = (activeStatusFilter === 'all' || cardStatus === activeStatusFilter);
+                
+                if (dateMatch && statusMatch) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
         // ── Filter tabs (today view) ──
         function filterTab(btn, status) {
             btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.querySelectorAll('.appt-card').forEach(card => {
-                card.style.display = status === 'all' || card.dataset.status === status ? '' : 'none';
-            });
+            activeStatusFilter = status;
+            applyFilters();
         }
 
         // ── Monthly summary month switcher ──
-        let summaryDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        const _now = new Date();
+        let summaryDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
         function shiftSummaryMonth(dir) {
             summaryDate.setMonth(summaryDate.getMonth() + dir);
+            const lang = localStorage.getItem('lang') || 'th';
+            const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthsTh = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            const monthsStr = lang === 'en' ? monthsEn : monthsTh;
+            const yearStr = lang === 'en' ? summaryDate.getFullYear() : summaryDate.getFullYear() + 543;
             document.getElementById('summary-month-label').textContent =
-                `${months[summaryDate.getMonth()]} ${summaryDate.getFullYear()}`;
+                `${monthsStr[summaryDate.getMonth()]} ${yearStr}`;
         }
-        
-        // ── Edit & Delete Modals ──
-        let currentEditCard = null;
 
+        // ── Delete Modals ──
         document.querySelectorAll('.icon-btn').forEach(btn => {
-            if(btn.classList.contains('danger')) {
-                btn.onclick = function() {
-                    if(confirm(currentLang === 'th' ? "แน่ใจหรือไม่ว่าต้องการลบการจองนี้?" : "Are you sure you want to delete this appointment?")) {
+            if (btn.classList.contains('danger')) {
+                btn.onclick = function () {
+                    const currentLang = localStorage.getItem('lang') || 'th';
+                    if (confirm(currentLang === 'th' ? "แน่ใจหรือไม่ว่าต้องการลบการจองนี้?" : "Are you sure you want to delete this appointment?")) {
                         this.closest('.appt-card').remove();
                     }
-                };
-            } else {
-                btn.onclick = function() {
-                    currentEditCard = this.closest('.appt-card');
-                    document.getElementById('edit_name').value = currentEditCard.querySelector('.appt-name').textContent;
-                    
-                    const details = currentEditCard.querySelectorAll('.appt-row-detail span:not(.material-symbols-outlined)');
-                    document.getElementById('edit_time').value = details[0].textContent;
-                    document.getElementById('edit_phone').value = details[1].textContent;
-                    
-                    document.getElementById('edit_service').value = currentEditCard.querySelector('.service-chip').textContent.trim();
-                    
-                    document.getElementById('edit-modal').classList.add('open');
                 };
             }
         });
 
-        function saveEdit() {
-            if(currentEditCard) {
-                currentEditCard.querySelector('.appt-name').textContent = document.getElementById('edit_name').value;
-                const details = currentEditCard.querySelectorAll('.appt-row-detail span:not(.material-symbols-outlined)');
-                details[0].textContent = document.getElementById('edit_time').value;
-                details[1].textContent = document.getElementById('edit_phone').value;
-                
-                const chip = currentEditCard.querySelector('.service-chip');
-                const icon = chip.querySelector('.material-symbols-outlined').outerHTML;
-                chip.innerHTML = icon + ' ' + document.getElementById('edit_service').value;
-                
-                document.getElementById('edit-modal').classList.remove('open');
+        // --- Date Picker State ---
+        let currentPickerMonth = new Date().getMonth();
+        let currentPickerYear = new Date().getFullYear();
+
+        function prevPickerMonth() {
+            currentPickerMonth--;
+            if (currentPickerMonth < 0) {
+                currentPickerMonth = 11;
+                currentPickerYear--;
+            }
+            const oldActiveStr = document.querySelector('.date-pill.active')?.getAttribute('data-date-id');
+            generateDatePicker(oldActiveStr);
+        }
+
+        function nextPickerMonth() {
+            currentPickerMonth++;
+            if (currentPickerMonth > 11) {
+                currentPickerMonth = 0;
+                currentPickerYear++;
+            }
+            const oldActiveStr = document.querySelector('.date-pill.active')?.getAttribute('data-date-id');
+            generateDatePicker(oldActiveStr);
+        }
+
+        // --- Date Picker Logic ---
+        function generateDatePicker(activeDateStr = null) {
+            try {
+                const container = document.getElementById('date-picker');
+                if (!container) return;
+                container.innerHTML = '';
+
+            const lang = localStorage.getItem('lang') || 'th';
+            const lblClosed = lang === 'en' ? 'Closed' : 'หยุด';
+            const lblQueue = lang === 'en' ? 'Queue' : 'คิว';
+            const daysArrEn = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const daysArrTh = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+            const daysArr = lang === 'en' ? daysArrEn : daysArrTh;
+
+            const lblAll = lang === 'en' ? 'All' : 'ทั้งหมด';
+
+            // Update Picker Month Label
+            const elMonthLabel = document.getElementById('picker-month-label');
+            if (elMonthLabel) {
+                if (lang === 'en') {
+                    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    elMonthLabel.textContent = `${monthsEn[currentPickerMonth]} ${currentPickerYear}`;
+                } else {
+                    const monthsTh = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                    elMonthLabel.textContent = `${monthsTh[currentPickerMonth]} ${currentPickerYear + 543}`;
+                }
+            }
+
+            // "All" button
+
+            // "All" button
+            const allBtn = document.createElement('div');
+            allBtn.className = 'date-pill' + (!activeDateStr || activeDateStr === 'ALL' ? ' active' : '');
+            allBtn.setAttribute('data-date-id', 'ALL');
+            allBtn.onclick = () => filterByDate('ALL', allBtn);
+            allBtn.innerHTML = `
+                <div class="date-pill-day" style="color:var(--ink-3);">${lblAll}</div>
+                <div class="date-pill-num"><span class="material-symbols-outlined" style="font-size:24px;">calendar_month</span></div>
+            `;
+            container.appendChild(allBtn);
+
+            const today = new Date();
+
+            // Inject dates into dummy cards for demo before rendering
+            const dToday = new Date(today);
+            const strToday = dToday.toISOString().split('T')[0];
+            const dTom = new Date(today);
+            dTom.setDate(dTom.getDate() + 1);
+            const strTom = dTom.toISOString().split('T')[0];
+
+            document.querySelectorAll('[data-date="TODAY"]').forEach(el => el.setAttribute('data-date', strToday));
+            document.querySelectorAll('[data-date="TOMORROW"]').forEach(el => el.setAttribute('data-date', strTom));
+
+            // Count queues per date
+            const counts = {};
+            document.querySelectorAll('.appt-card').forEach(card => {
+                const date = card.getAttribute('data-date');
+                if (date) {
+                    counts[date] = (counts[date] || 0) + 1;
+                }
+            });
+
+            // Generate days for the selected month
+            const daysInMonth = new Date(currentPickerYear, currentPickerMonth + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateObj = new Date(currentPickerYear, currentPickerMonth, d);
+
+                const yr = dateObj.getFullYear();
+                const mo = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const dy = String(dateObj.getDate()).padStart(2, '0');
+                const dateStr = `${yr}-${mo}-${dy}`;
+
+                const dow = dateObj.getDay();
+                const dayName = daysArr[dow];
+                const dateNum = dateObj.getDate();
+                const isSunday = dow === 0;
+
+                const count = counts[dateStr] || 0;
+                let countHtml = '';
+                if (isSunday) {
+                    countHtml = `<div class="date-pill-count" style="color:#cc3333;">${lblClosed}</div>`;
+                } else if (count > 0) {
+                    countHtml = `<div class="date-pill-count">${count} ${lblQueue}</div>`;
+                }
+
+                const pill = document.createElement('div');
+                pill.className = 'date-pill' + (isSunday ? ' faded' : '') + (activeDateStr === dateStr ? ' active' : '');
+                pill.setAttribute('data-date-id', dateStr);
+                pill.onclick = () => filterByDate(dateStr, pill);
+
+                pill.innerHTML = `
+                    <div class="date-pill-day">${dayName}</div>
+                    <div class="date-pill-num">${dateNum}</div>
+                    ${countHtml}
+                `;
+                container.appendChild(pill);
+            }
+            } catch(err) {
+                alert("Date Picker Error: " + err.message + "\nLine: " + err.lineNumber);
+                console.error(err);
             }
         }
 
-        const editModal = document.getElementById('edit-modal');
-        if (editModal) {
-            const handle = editModal.querySelector('.modal-handle');
-            const sheet = editModal.querySelector('.modal-sheet');
-            
-            editModal.addEventListener('click', (e) => {
-                if (e.target === editModal) editModal.classList.remove('open');
-            });
-            document.getElementById('close-edit-modal').addEventListener('click', () => {
-                editModal.classList.remove('open');
-            });
-
-            let startY = 0;
-            let currentY = 0;
-            handle.addEventListener('touchstart', (e) => {
-                startY = e.touches[0].clientY;
-                sheet.style.transition = 'none';
-            });
-            handle.addEventListener('touchmove', (e) => {
-                currentY = e.touches[0].clientY;
-                if (currentY > startY) {
-                    sheet.style.transform = `translateY(${currentY - startY}px)`;
-                }
-            });
-            handle.addEventListener('touchend', () => {
-                sheet.style.transition = 'transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1)';
-                if (currentY - startY > 100) {
-                    editModal.classList.remove('open');
-                }
-                sheet.style.transform = '';
-            });
+        function filterByDate(dateStr, btnEl) {
+            // Update active state on pills
+            document.querySelectorAll('.date-pill').forEach(el => el.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            activeDateFilter = dateStr;
+            applyFilters();
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            generateDatePicker();
+        });
+
+        // --- Edit Modal Logic ---
+        const editModal = document.getElementById('edit-modal');
+
+        window.updateEditStepper = function(delta) {
+            const input = document.getElementById('edit-num-people');
+            let val = parseInt(input.value, 10);
+            val += delta;
+            if (val < 1) val = 1;
+            if (val > 7) val = 7;
+            input.value = val;
+            document.getElementById('edit-num-people-val').textContent = val;
+            handleEditPeopleChange();
+        };
+
+        window.handleEditPeopleChange = function(initialName = null) {
+            const input = document.getElementById('edit-num-people');
+            if (!input) return;
+            const val = parseInt(input.value, 10);
+            
+            // Update time slots dynamically
+            let duration = 1;
+            if (val >= 4 && val <= 6) duration = 2;
+            else if (val === 7) duration = 3;
+            
+            const timeContainer = document.getElementById('edit-time-slots-container');
+            if (timeContainer) {
+                const activeTime = document.querySelector('input[name="edit-time"]:checked')?.value;
+                timeContainer.innerHTML = '';
+                let checkedAdded = false;
+                
+                for (let hour = 9; hour <= 16; hour++) {
+                    const endHour = hour + duration;
+                    if (endHour > 17) continue;
+                    if (hour < 12 && endHour > 11) continue;
+                    
+                    const tVal = `${hour}:00`;
+                    const tId = 'et' + hour;
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = 'edit-time';
+                    radio.id = tId;
+                    radio.value = tVal;
+                    radio.className = 'time-radio';
+                    if (activeTime === tVal || (!activeTime && !checkedAdded)) {
+                        radio.checked = true;
+                        checkedAdded = true;
+                    }
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = tId;
+                    label.className = 'time-label';
+                    
+                    const span = document.createElement('span');
+                    span.className = 'time-text';
+                    span.textContent = `${hour.toString().padStart(2, '0')}:00 – ${endHour.toString().padStart(2, '0')}:00`;
+                    
+                    label.appendChild(span);
+                    timeContainer.appendChild(radio);
+                    timeContainer.appendChild(label);
+                }
+            }
+            
+            // Update Name Inputs
+            const namesContainer = document.getElementById('edit-names-container');
+            if (namesContainer) {
+                const existingInputs = namesContainer.querySelectorAll('.edit-name-input');
+                const existingValues = Array.from(existingInputs).map(inp => inp.value);
+                
+                namesContainer.innerHTML = '';
+                const lang = localStorage.getItem('lang') || 'th';
+                for (let i = 1; i <= val; i++) {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'input-wrap';
+                    
+                    const icon = document.createElement('span');
+                    icon.className = 'material-symbols-outlined input-icon';
+                    icon.style.fontSize = '16px';
+                    icon.textContent = 'person';
+                    
+                    const inputEl = document.createElement('input');
+                    inputEl.className = 'form-input edit-name-input';
+                    inputEl.type = 'text';
+                    inputEl.placeholder = lang === 'en' ? `Full name (Person ${i})` : `ชื่อ-นามสกุล (คนที่ ${i})`;
+                    inputEl.required = true;
+                    if (i === 1) {
+                        inputEl.id = 'edit-name';
+                        inputEl.value = initialName !== null ? initialName : (existingValues[0] || '');
+                    } else {
+                        inputEl.value = existingValues[i - 1] || '';
+                    }
+                    
+                    wrap.appendChild(icon);
+                    wrap.appendChild(inputEl);
+                    namesContainer.appendChild(wrap);
+                }
+            }
+        };
+
+        function openEditModal(name, phone, pax, date, time, service) {
+            editModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            
+            document.getElementById('edit-date').value = date;
+            document.getElementById('edit-phone').value = phone;
+            
+            document.getElementById('edit-num-people').value = pax;
+            document.getElementById('edit-num-people-val').textContent = pax;
+            
+            document.querySelectorAll('input[name="edit-service"]').forEach(rad => {
+                if (rad.value === service) rad.checked = true;
+            });
+            
+            // Generate name inputs & time slots
+            handleEditPeopleChange(name);
+            
+            // Set the active time slot radio button
+            const hour = parseInt(time.split(':')[0]);
+            const radioEl = document.getElementById('et' + hour);
+            if (radioEl) {
+                radioEl.checked = true;
+            }
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('edit-form')?.addEventListener('submit', e => {
+            e.preventDefault();
+            const timeRadio = document.querySelector('input[name="edit-time"]:checked');
+            const timeVal = timeRadio ? timeRadio.value : '';
+            // Dummy conflict check 
+            if (timeVal === '10:00' || timeVal === '13:00' || timeVal === '15:00') {
+                const lang = localStorage.getItem('lang');
+                alert(lang === 'en' ? 'Error: Time slot already booked!' : 'ข้อผิดพลาด: เวลานี้มีคิวจองแล้ว!');
+                return;
+            }
+            const lang = localStorage.getItem('lang');
+            alert(lang === 'en' ? 'Saved successfully (Demo)!' : 'บันทึกสำเร็จ (Demo)!');
+            closeEditModal();
+        });
+
     </script>
 </body>
 

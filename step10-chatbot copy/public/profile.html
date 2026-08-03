@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Profile — BaanChangSom</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            background-color: var(--bg);
+            padding-bottom: 90px;
+        }
+
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px 20px;
+            background: linear-gradient(180deg, rgba(31,35,54,0.05) 0%, rgba(247,245,240,0) 100%);
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+            object-fit: cover;
+            margin-bottom: 12px;
+            background: #e0e0e0;
+        }
+
+        .profile-name {
+            font-family: 'Lora', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .profile-tier {
+            font-size: 11px;
+            font-weight: 700;
+            color: #b8860b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(184, 134, 11, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        /* Customer Cards */
+        .cust-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            margin: 0 20px 16px;
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cust-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 4px;
+            background: var(--ink);
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .cust-card.pending::before { background: #cc6600; }
+        .cust-card.done::before { background: #2a7d4f; }
+
+        .cust-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed rgba(0,0,0,0.06);
+        }
+
+        .cust-service {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .cust-date {
+            font-size: 12px;
+            color: var(--ink-3);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .cust-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .cust-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-2);
+        }
+
+        .tabs {
+            margin: 0 20px 20px;
+            display: flex;
+            background: rgba(0,0,0,0.04);
+            padding: 4px;
+            border-radius: 100px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 100px;
+            border: none;
+            background: none;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--ink-3);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: #ffffff;
+            color: var(--ink);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .view-panel {
+            display: none;
+            animation: fadeUp 0.4s ease forwards;
+        }
+        .view-panel.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="top-fade"></div>
+    <a href="index.html" class="floating-logo">BaanChangSom</a>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="booking.html" data-i18n="nav-booking">Booking</a>
+            <a href="index.html#pricing" data-i18n="nav-pricing">Pricing</a>
+        </div>
+        <div class="nav-right">
+            <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()">TH</button>
+            <div class="nav-user-text">
+                <div class="nav-user-label" data-i18n="nav-welcome">Welcome</div>
+                <div class="nav-user-name" id="user-name" data-i18n="nav-guest">Guest</div>
+            </div>
+            <div class="nav-avatar">
+                <img id="user-avatar" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover;">
+                <span class="material-symbols-outlined" id="user-avatar-fallback" style="font-size:18px; color:var(--ink-3); margin:auto;">person</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Header -->
+    <div class="profile-header anim-1">
+        <img src="" alt="" id="prof-img" class="profile-avatar" style="display:none;">
+        <div class="profile-avatar" id="prof-placeholder" style="display:flex; align-items:center; justify-content:center;">
+            <span class="material-symbols-outlined" style="font-size:32px; color:var(--ink-3);">person</span>
+        </div>
+        <div class="profile-name" id="prof-name" data-i18n="prof-guest">Guest User</div>
+        <div class="profile-tier" data-i18n="prof-tier">Member</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs anim-2">
+        <button class="tab-btn active" onclick="switchTab(this, 'upcoming')" data-i18n="prof-tab-upcoming">Upcoming</button>
+        <button class="tab-btn" onclick="switchTab(this, 'history')" data-i18n="prof-tab-history">History</button>
+    </div>
+
+    <!-- Upcoming View -->
+    <div id="upcoming" class="view-panel active anim-3">
+        
+        <!-- Card 1 -->
+        <div class="cust-card pending">
+            <div class="cust-card-top">
+                <div>
+                    <div class="cust-service" data-i18n="svc-1-name">Fitting Appointment</div>
+                    <div class="cust-date">
+                        <span class="material-symbols-outlined" style="font-size:14px;">event</span>
+                        <span class="translate-me" data-en="4 Aug 2026" data-th="4 ส.ค. 2569">4 ส.ค. 2569</span>
+                    </div>
+                </div>
+                <span class="badge badge-pending" data-en="Pending" data-th="กำลังดำเนินการ">Pending</span>
+            </div>
+            <div class="cust-details">
+                <div class="cust-row">
+                    <span class="material-symbols-outlined" style="font-size:16px;">schedule</span>
+                    <span>10:30 - 11:30</span>
+                </div>
+                <div class="cust-row">
+                    <span class="material-symbols-outlined" style="font-size:16px;">group</span>
+                    <span class="translate-me" data-en="2 People" data-th="2 ท่าน">2 ท่าน</span>
+                </div>
+                <div class="cust-row" style="grid-column: span 2; margin-top:8px;">
+                    <span class="material-symbols-outlined" style="font-size:16px; color:#cc3333;">info</span>
+                    <span style="font-size:10px; color:var(--ink-3);" class="translate-me" data-en="To cancel or modify, please contact admin via LINE OA." data-th="หากต้องการแก้ไขหรือยกเลิกคิว กรุณาติดต่อแอดมินผ่าน LINE OA">หากต้องการแก้ไขหรือยกเลิกคิว กรุณาติดต่อแอดมินผ่าน LINE OA</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- History View -->
+    <div id="history" class="view-panel anim-3">
+        
+        <!-- Card 2 -->
+        <div class="cust-card done">
+            <div class="cust-card-top">
+                <div>
+                    <div class="cust-service" data-i18n="svc-3-name">Fabric Selection</div>
+                    <div class="cust-date">
+                        <span class="material-symbols-outlined" style="font-size:14px;">event</span>
+                        <span class="translate-me" data-en="15 Jul 2026" data-th="15 ก.ค. 2569">15 ก.ค. 2569</span>
+                    </div>
+                </div>
+                <span class="badge badge-confirm" data-en="Completed" data-th="เสร็จสิ้น">Completed</span>
+            </div>
+            <div class="cust-details">
+                <div class="cust-row">
+                    <span class="material-symbols-outlined" style="font-size:16px;">schedule</span>
+                    <span>14:00 - 15:00</span>
+                </div>
+                <div class="cust-row">
+                    <span class="material-symbols-outlined" style="font-size:16px;">group</span>
+                    <span class="translate-me" data-en="1 Person" data-th="1 ท่าน">1 ท่าน</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bnav-item">
+            <span class="material-symbols-outlined bnav-icon">home</span>
+            <span data-i18n="bnav-home">Home</span>
+        </a>
+        <a href="booking.html" class="bnav-center">
+            <span class="material-symbols-outlined" style="font-size:22px; font-variation-settings:'FILL' 1;">event_upcoming</span>
+        </a>
+        <a href="profile.html" class="bnav-item active">
+            <span class="material-symbols-outlined bnav-icon" style="font-variation-settings:'FILL' 1;">person</span>
+            <span data-i18n="bnav-profile">Profile</span>
+        </a>
+    </nav>
+
+    <script src="lang.js"></script>
+    <script>
+        async function initLiff() {
+            try {
+                await liff.init({ liffId: "2010856397-xdbmpsr8" });
+                if (liff.isLoggedIn()) {
+                    const profile = await liff.getProfile();
+                    
+                    // Profile Header
+                    document.getElementById('prof-name').textContent = profile.displayName;
+                    if(profile.pictureUrl) {
+                        const profImg = document.getElementById('prof-img');
+                        profImg.src = profile.pictureUrl;
+                        profImg.style.display = 'block';
+                        document.getElementById('prof-placeholder').style.display = 'none';
+                    }
+                    
+                    // Navbar
+                    document.getElementById('user-name').textContent = profile.displayName;
+                    if(profile.pictureUrl) {
+                        const navImg = document.getElementById('user-avatar');
+                        navImg.src = profile.pictureUrl;
+                        navImg.style.display = 'block';
+                        document.getElementById('user-avatar-fallback').style.display = 'none';
+                    }
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+        initLiff();
+
+        function switchTab(btn, panelId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(panelId).classList.add('active');
+        }
+
+        // Apply translations for custom dynamic strings in profile page
+        function updateProfileTranslations() {
+            const lang = localStorage.getItem('lang') || 'th';
+            document.querySelectorAll('.translate-me').forEach(el => {
+                if(el.getAttribute(`data-${lang}`)) {
+                    el.textContent = el.getAttribute(`data-${lang}`);
+                }
+            });
+        }
+        
+        // Listen to applyLang hook
+        function updateAdminTranslations() {
+            updateProfileTranslations();
+        }
+        
+        // Initial setup
+        updateProfileTranslations();
+
+    </script>
+</body>
+</html>

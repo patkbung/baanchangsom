@@ -53,7 +53,7 @@ body {
 .page-wrap {
   max-width: 480px;
   margin: 0 auto;
-  padding: 78px 16px 90px;
+  padding: 66px 16px 90px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -82,8 +82,8 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 120px;
-  background: linear-gradient(to bottom, rgba(240, 236, 230, 1) 0%, rgba(240, 236, 230, 1) 45%, rgba(240, 236, 230, 0) 100%);
+  height: 90px;
+  background: linear-gradient(to bottom, rgba(240, 236, 230, 1) 0%, rgba(240, 236, 230, 1) 40%, rgba(240, 236, 230, 0) 100%);
   z-index: 190;
   pointer-events: none;
 }
@@ -118,6 +118,22 @@ body {
   color: var(--ink);
   text-decoration: none;
   letter-spacing: -0.01em;
+}
+
+.lang-btn {
+  background: var(--ink-3);
+  color: var(--white);
+  border: none;
+  border-radius: 100px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lang-btn:hover {
+  background: var(--ink);
 }
 
 .nav-links {
@@ -990,8 +1006,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px 6px;
-  border-radius: 14px;
+  padding: 10px 4px;
+  border-radius: 12px;
   border: 1.5px solid rgba(0, 0, 0, 0.07);
   background: rgba(0, 0, 0, 0.02);
   cursor: pointer;
@@ -1001,6 +1017,7 @@ body {
   text-align: center;
   transition: all 0.2s;
   line-height: 1.3;
+  white-space: nowrap;
 }
 
 .time-label:hover {
@@ -1172,7 +1189,7 @@ body {
 .page-wrap {
   max-width: 440px;
   margin: 0 auto;
-  padding: 110px 16px 90px;
+  padding: 66px 16px 90px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1221,4 +1238,116 @@ body {
 .spin {
   animation: spin 0.9s linear infinite;
   display: inline-block;
+}
+
+/* iOS Style Select */
+.ios-select-wrap {
+  position: relative;
+  background: #f2f2f7;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+  width: 120px;
+}
+
+.ios-select-wrap:active {
+  background: #e5e5ea;
+}
+
+.ios-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  padding: 10px 40px 10px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+}
+
+.ios-select-icon {
+  position: absolute;
+  right: 14px;
+  pointer-events: none;
+  color: #8e8e93;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Premium Redesign Styles */
+.premium-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  margin-bottom: 16px;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.modal-body {
+  background: #f7f7f9; /* Soft background to make cards pop */
+  padding: 16px 20px 24px;
+}
+
+/* Stepper UI */
+.stepper-wrap {
+  display: inline-flex;
+  align-items: center;
+  background: #f2f2f7;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.stepper-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: transform 0.1s, background 0.1s;
+}
+
+.stepper-btn:active {
+  transform: scale(0.92);
+  background: #fafafa;
+}
+
+.stepper-btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.stepper-val {
+  width: 48px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Enhanced Buttons */
+.submit-btn {
+  background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.submit-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }

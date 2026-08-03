@@ -9,7 +9,11 @@ BaanChangSom (บ้านช่างส้ม) is a comprehensive LINE Mini Ap
   - **Service Catalog**: Browse tailoring categories (Dresses, Shirts, Pants, Alterations).
   - **Booking System**: Interactive calendar to book appointments for fittings and design consultations.
   - **Bilingual Support (TH/EN)**: The interface can switch between Thai and English instantly.
-- **Admin Dashboard**: A dedicated interface for shop owners to view and manage customer appointments.
+  - **Customer Profile Tracking**: A dedicated `profile.html` page where customers can track their upcoming appointments, view history, and manage their profile with full TH/EN translation support.
+- **Admin Dashboard (`admin.html`)**: A comprehensive interface for shop owners to manage bookings.
+  - **Month & Date Picker**: Features a month navigator and horizontal date picker for quick scheduling views.
+  - **Synced Filter Tabs**: Filter appointments by date and status ("All", "Service Queue", "Done") concurrently.
+  - **Bespoke Edit Modal**: Allows admins to modify appointments using a form identical to the customer booking form (dynamic name fields, duration-based time slots, and queue conflict checking).
 - **Automated Workflows**: Ready for integration with n8n for webhook automation and notifications.
 
 ## 🚀 Tech Stack
