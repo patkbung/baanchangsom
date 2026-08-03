@@ -68,7 +68,13 @@ Or use:
 npm start
 ```
 
-The server will start on `http://localhost:3000` (or the port defined in your `.env`). Use a tool like **ngrok** to expose your local server to the internet and configure your LINE Webhook URL.
+The server will start on `http://localhost:3000` (or the port defined in your `.env`). 
+
+To expose your local server to the internet for the LINE Webhook, open a new terminal and run **ngrok**:
+```bash
+ngrok http 3000
+```
+Then copy the `https://...` Forwarding URL provided by ngrok and paste it into your LINE Developer Console as the Webhook URL (e.g., `https://<your-ngrok-url>.ngrok-free.app/webhook`).
 
 ## 📱 Screenshots & UI
 
