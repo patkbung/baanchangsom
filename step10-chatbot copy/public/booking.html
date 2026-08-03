@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book an Appointment — BaanChangSom</title>
+<link rel="stylesheet" href="style.css">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="lang.js"></script>
+<style>
+  /* Selected date banner */
+  .date-banner {
+    background: var(--card-bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.25s;
+  }
+
+  .date-banner-icon {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    color: var(--ink-2);
+  }
+
+  .date-banner-text { flex: 1; }
+  .date-banner-main { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .date-banner-sub  { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+
+  .date-banner.has-date .date-banner-icon {
+    background: var(--ink);
+    color: var(--white);
+  }
+
+  /* Info chip */
+  .info-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+</style>
+</head>
+<body>
+<div class="top-fade"></div>
+<a href="index.html" class="floating-logo">BaanChangSom</a>
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-links">
+    <a href="booking.html" class="active" data-i18n="nav-booking">Booking</a>
+    <a href="index.html#pricing" data-i18n="nav-pricing">Pricing</a>
+  </div>
+  <div class="nav-right">
+    <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()">TH</button>
+    <div class="nav-user-text">
+      <div class="nav-user-label" data-i18n="nav-welcome">Welcome</div>
+      <div class="nav-user-name" id="user-name" data-i18n="nav-guest">Guest</div>
+    </div>
+    <div class="nav-avatar">
+      <img id="user-avatar" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover;">
+      <span class="material-symbols-outlined" id="user-avatar-fallback" style="font-size:18px; color:var(--ink-3); margin:auto;">person</span>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="anim-1">
+    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-3); margin-bottom:4px;" data-i18n="appt-title">Appointment</div>
+    <div style="font-family:'Lora',serif; font-size:1.7rem; font-weight:600; letter-spacing:-0.02em; color:var(--ink); line-height:1.1;" data-i18n="appt-subtitle">Pick a Date</div>
+    <div style="font-size:12px; color:var(--ink-3); margin-top:4px;" data-i18n="appt-desc">Tap a date on the calendar to book instantly</div>
+  </div>
+
+  <!-- Calendar Card -->
+  <div class="card anim-2" style="padding: 16px;">
+
+    <!-- Month navigation -->
+    <div class="cal-nav-row">
+      <button class="cal-nav-btn" id="prev-month" aria-label="เดือนก่อน">
+        <span class="material-symbols-outlined" style="font-size:16px;">chevron_left</span>
+      </button>
+      <div class="cal-month-header" id="cal-month-label" style="margin:0; font-size:14px; font-weight:700; color:var(--ink);">กุมภาพันธ์ 2568</div>
+      <button class="cal-nav-btn" id="next-month" aria-label="เดือนถัดไป">
+        <span class="material-symbols-outlined" style="font-size:16px;">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- Weekday labels -->
+    <div class="cal-weekrow">
+      <div class="cal-wd sun">อา</div>
+      <div class="cal-wd">จ</div>
+      <div class="cal-wd">อ</div>
+      <div class="cal-wd">พ</div>
+      <div class="cal-wd">พฤ</div>
+      <div class="cal-wd">ศ</div>
+      <div class="cal-wd sat">ส</div>
+    </div>
+
+    <!-- Calendar days (JS) -->
+    <div class="cal-grid" id="cal-grid"></div>
+
+  </div>
+
+
+
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal" role="dialog" aria-modal="true">
+  <div class="modal-sheet">
+    <div class="modal-handle"><div class="modal-handle-bar"></div></div>
+    <div class="modal-body">
+
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;">
+        <h2 id="modal-date-title" style="font-family:'Lora',serif; font-size:1.2rem; color:var(--ink); margin-bottom:0;">Book — Date</h2>
+        <button type="button" id="close-modal" style="background:none; border:none; cursor:pointer; padding:4px;">
+          <span class="material-symbols-outlined" style="font-size:20px; color:var(--ink-3);">close</span>
+        </button>
+      </div>
+
+      <form id="booking-form" novalidate>
+
+        <!-- Service selection -->
+        <div>
+          <div class="form-label" data-i18n="form-service">Select Service</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            
+            <input type="radio" name="service" id="svc1" value="fitting" class="svc-radio" checked>
+            <label for="svc1" class="svc-label">
+              <div class="svc-icon"><span class="material-symbols-outlined" style="font-size:16px;">straighten</span></div>
+              <div>
+                <div class="svc-name" data-i18n="svc-1-name">Fitting Appointment</div>
+                <div class="svc-desc" data-i18n="svc-1-desc">60 min · Measurements & adjustments</div>
+              </div>
+            </label>
+
+            <input type="radio" name="service" id="svc2" value="consultation" class="svc-radio">
+            <label for="svc2" class="svc-label">
+              <div class="svc-icon"><span class="material-symbols-outlined" style="font-size:16px;">design_services</span></div>
+              <div>
+                <div class="svc-name" data-i18n="svc-2-name">Design Consultation</div>
+                <div class="svc-desc" data-i18n="svc-2-desc">45 min · Fabric & pattern selection</div>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Time slots -->
+        <div style="margin: 14px 0;">
+          <div class="form-label" data-i18n="form-time">Select Time Slot</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+
+            <input type="radio" name="time" id="t1" value="10:00-12:00" class="time-radio" checked>
+            <label for="t1" class="time-label">
+              <span>10:00 – 12:00</span>
+              <span class="time-avail">3 <span data-i18n="slot-avail">slots available</span></span>
+            </label>
+
+            <input type="radio" name="time" id="t2" value="13:00-15:00" class="time-radio">
+            <label for="t2" class="time-label">
+              <span>13:00 – 15:00</span>
+              <span class="time-avail">2 <span data-i18n="slot-avail">slots available</span></span>
+            </label>
+
+            <label class="time-label booked">
+              <span>15:00 – 17:00</span>
+              <span class="time-avail" style="text-decoration:none;" data-i18n="slot-full">Fully booked</span>
+            </label>
+
+            <input type="radio" name="time" id="t4" value="17:00-19:00" class="time-radio">
+            <label for="t4" class="time-label">
+              <span>17:00 – 19:00</span>
+              <span class="time-avail">4 <span data-i18n="slot-avail">slots available</span></span>
+            </label>
+
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Personal info -->
+        <div style="margin-top:14px; display:flex; flex-direction:column; gap:8px;">
+          <div class="form-label" data-i18n="form-details">Your Details</div>
+
+          <div class="input-wrap">
+            <span class="material-symbols-outlined input-icon" style="font-size:16px;">person</span>
+            <input class="form-input" type="text" id="full_name" placeholder="Full name" autocomplete="name" data-i18n="form-name" required>
+          </div>
+
+          <div class="input-wrap">
+            <span class="material-symbols-outlined input-icon" style="font-size:16px;">call</span>
+            <input class="form-input" type="tel" id="phone" placeholder="Phone number" autocomplete="tel" data-i18n="form-phone" required>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span class="material-symbols-outlined" style="font-size:16px; font-variation-settings:'FILL' 1;">check_circle</span>
+          <span data-i18n="btn-confirm">Confirm Booking</span>
+        </button>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html" class="bnav-item">
+    <span class="material-symbols-outlined bnav-icon">home</span>
+    <span data-i18n="bnav-home">Home</span>
+  </a>
+  <a href="booking.html" class="bnav-center">
+    <span class="material-symbols-outlined" style="font-size:22px; font-variation-settings:'FILL' 1;">event_upcoming</span>
+  </a>
+  <a href="admin.html" class="bnav-item">
+    <span class="material-symbols-outlined bnav-icon">calendar_month</span>
+    <span data-i18n="bnav-schedule">Schedule</span>
+  </a>
+</nav>
+
+<script>
+  // ── LIFF Profile ──
+  const LIFF_ID = '2010947166-BLk9wNiz';
+  (async () => {
+    try {
+      if (LIFF_ID) {
+        await liff.init({ liffId: LIFF_ID });
+        if (liff.isLoggedIn()) {
+          const p = await liff.getProfile();
+          document.getElementById('user-name').textContent = p.displayName;
+          const img = document.getElementById('user-avatar');
+          img.src = p.pictureUrl;
+          img.style.display = 'block';
+          document.getElementById('user-avatar-fallback').style.display = 'none';
+        } else {
+          liff.login();
+        }
+      }
+    } catch(e) {
+      console.error('LIFF Error:', e);
+      alert('LIFF Error: ' + e.message);
+    }
+  })();
+
+  const TODAY = new Date();
+  let current = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+  let selDay = TODAY.getDate(), selMonth = TODAY.getMonth(), selYear = TODAY.getFullYear();
+
+  const thaiMonths = ['January','February','March','April',
+    'May','June','July','August',
+    'September','October','November','December'];
+  const thaiDays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  function renderCal() {
+    const yr = current.getFullYear(), mo = current.getMonth();
+    document.getElementById('cal-month-label').textContent = `${thaiMonths[mo]} ${yr + 543}`;
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+    const firstDow = new Date(yr, mo, 1).getDay();
+    const daysInMo = new Date(yr, mo + 1, 0).getDate();
+    const prevDays = new Date(yr, mo, 0).getDate();
+
+    // Prev month filler
+    for (let i = firstDow - 1; i >= 0; i--) {
+      const el = document.createElement('div');
+      el.className = 'cal-day faded';
+      el.textContent = prevDays - i;
+      grid.appendChild(el);
+    }
+
+    // Current month
+    for (let d = 1; d <= daysInMo; d++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const dow = new Date(yr, mo, d).getDay();
+      let cls = 'cal-day';
+      if (dow === 0) cls += ' sun';
+      if (dow === 6) cls += ' sat';
+      const isToday = d === TODAY.getDate() && mo === TODAY.getMonth() && yr === TODAY.getFullYear();
+      if (isToday) cls += ' today';
+      if (d === selDay && mo === selMonth && yr === selYear) cls += ' selected';
+      btn.className = cls;
+      btn.textContent = d;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
+        btn.classList.add('selected');
+        selDay = d; selMonth = mo; selYear = yr;
+        const dayName = thaiDays[dow];
+        const dateStr = `${dayName}, ${d} ${thaiMonths[mo]} ${yr}`;
+        document.getElementById('modal-date-title').textContent = `Book — ${dateStr}`;
+        openModal();
+      });
+      grid.appendChild(btn);
+    }
+
+    // Next month filler
+    const total = firstDow + daysInMo;
+    const rem = total % 7 === 0 ? 0 : 7 - (total % 7);
+    for (let d = 1; d <= rem; d++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day faded';
+      el.textContent = d;
+      grid.appendChild(el);
+    }
+  }
+
+  document.getElementById('prev-month').addEventListener('click', () => {
+    current.setMonth(current.getMonth() - 1);
+    renderCal();
+  });
+  document.getElementById('next-month').addEventListener('click', () => {
+    current.setMonth(current.getMonth() + 1);
+    renderCal();
+  });
+
+  // Modal
+  const modal = document.getElementById('modal');
+  
+  function openModal() {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function bookToday() {
+    selDay = TODAY.getDate();
+    selMonth = TODAY.getMonth();
+    selYear = TODAY.getFullYear();
+    current = new Date(selYear, selMonth, 1);
+    renderCal();
+    const dayName = thaiDays[TODAY.getDay()];
+    const dateStr = `${dayName}, ${selDay} ${thaiMonths[selMonth]} ${selYear}`;
+    document.getElementById('modal-date-title').textContent = `Book — ${dateStr}`;
+    openModal();
+  }
+
+  document.getElementById('close-modal').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = false;
+    btn.className = 'submit-btn';
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px; font-variation-settings:\'FILL\' 1;">check_circle</span> ยืนยันการจอง';
+    document.getElementById('booking-form').reset();
+  }
+
+  document.getElementById('booking-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('full_name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    if (!name || !phone) return;
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined spin" style="font-size:18px;">progress_activity</span> Processing…';
+    setTimeout(() => {
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:\'FILL\' 1;">check_circle</span> Booking Confirmed!';
+      btn.classList.add('success');
+      setTimeout(closeModal, 1800);
+    }, 1400);
+  });
+
+  renderCal();
+</script>
+</body>
+</html>

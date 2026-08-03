@@ -1,0 +1,6 @@
+node_modules/
+.env
+.DS_Store
+*.log
+dialogflow-key.json
+n8n_line_gemini_workflow.json
