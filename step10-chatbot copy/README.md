@@ -74,11 +74,35 @@ npm start
 
 The server will start on `http://localhost:3000` (or the port defined in your `.env`). 
 
-To expose your local server to the internet for the LINE Webhook, open a new terminal and run **ngrok**:
-```bash
-ngrok http 3000
-```
-Then copy the `https://...` Forwarding URL provided by ngrok and paste it into your LINE Developer Console as the Webhook URL (e.g., `https://<your-ngrok-url>.ngrok-free.app/webhook`).
+To deploy the application to the internet for the LINE Webhook, you can deploy it to **Vercel**:
+
+### Deploying to Vercel
+
+1. **Install Vercel CLI** (if not already installed):
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Deploy the project**:
+   Run the following command in the root directory:
+   ```bash
+   vercel
+   ```
+   Follow the prompts to link and deploy your project.
+
+3. **Configure Environment Variables on Vercel**:
+   Go to your Vercel Dashboard -> Project Settings -> Environment Variables, and add the variables defined in your `.env` file:
+   - `CHANNEL_SECRET`
+   - `CHANNEL_ACCESS_TOKEN`
+   - `LIFF_ID`
+   - `GEMINI_API_KEY`
+   - `GEMINI_MODEL`
+   - `N8N_WEBHOOK`
+
+4. **Set Webhook URL in LINE Developer Console**:
+   Copy the deployment URL provided by Vercel (e.g., `https://your-project.vercel.app`) and paste it into your LINE Developer Console as the Webhook URL:
+   `https://your-project.vercel.app/callback`
+
 
 ## 📱 Screenshots & UI
 

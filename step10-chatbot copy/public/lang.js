@@ -71,6 +71,7 @@ const dictionary = {
   "admin-stat-2": { en: "Pending Approval", th: "รออนุมัติ" },
   "admin-stat-3": { en: "Completed", th: "เสร็จสิ้น" },
   "admin-today-title": { en: "Today's Schedule", th: "ตารางงานวันนี้" },
+  "admin-summary-title": { en: "Monthly Summary", th: "สรุปข้อมูลรายเดือน" },
   "admin-search": { en: "Search client name or service…", th: "ค้นหาชื่อลูกค้าหรือบริการ..." },
   "admin-stat-today": { en: "Today", th: "วันนี้" },
   "admin-stat-pending": { en: "Service Queue", th: "คิวบริการ" },

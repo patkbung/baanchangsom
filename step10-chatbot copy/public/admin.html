@@ -743,7 +743,15 @@
         </div>
 
         <!-- ══ MONTHLY SUMMARY VIEW ══ -->
-        <div class="view-panel" id="month-view">
+        <div class="view-panel" id="month-view" style="padding-top:24px;">
+
+            <!-- Greeting / Title -->
+            <div class="anim-1" style="padding:4px 2px 0; margin-bottom:20px;">
+                <div style="font-size:20px; margin-bottom:3px;">📊</div>
+                <div style="font-size:1.4rem; font-weight:800; letter-spacing:-0.02em; color:var(--ink); line-height:1.1;"
+                    data-i18n="admin-summary-title">
+                    Monthly Summary</div>
+            </div>
 
             <!-- Month selector -->
             <div style="display:flex; align-items:center; justify-content:space-between; padding:0 2px;">
@@ -812,62 +820,6 @@
                     </div>
                     <div class="bar-val">7</div>
                 </div>
-            </div>
-
-            <!-- Service breakdown -->
-            <div class="month-bar-wrap">
-                <div class="month-bar-title">Service Breakdown</div>
-                <div class="bar-row">
-                    <div class="bar-label">Fitting</div>
-                    <div class="bar-track">
-                        <div class="bar-fill" style="width:58%"></div>
-                    </div>
-                    <div class="bar-val">14</div>
-                </div>
-                <div class="bar-row">
-                    <div class="bar-label">Consultation</div>
-                    <div class="bar-track">
-                        <div class="bar-fill green" style="width:25%"></div>
-                    </div>
-                    <div class="bar-val">6</div>
-                </div>
-                <div class="bar-row">
-                    <div class="bar-label">Alteration</div>
-                    <div class="bar-track">
-                        <div class="bar-fill gold" style="width:17%"></div>
-                    </div>
-                    <div class="bar-val">4</div>
-                </div>
-            </div>
-
-            <!-- Top clients -->
-            <div style="padding:0 2px;">
-                <div style="font-size:12px; font-weight:700; color:var(--ink); margin-bottom:8px;">Most Frequent Clients
-                </div>
-            </div>
-            <div class="popular-row">
-                <div class="popular-rank">🥇</div>
-                <div class="popular-body">
-                    <div class="popular-name">Thanathorn S.</div>
-                    <div class="popular-meta">Last visit: 31 Jul · Bespoke Suit</div>
-                </div>
-                <div class="popular-count">4×</div>
-            </div>
-            <div class="popular-row">
-                <div class="popular-rank">🥈</div>
-                <div class="popular-body">
-                    <div class="popular-name">Attapol K.</div>
-                    <div class="popular-meta">Last visit: 31 Jul · Fitting</div>
-                </div>
-                <div class="popular-count">3×</div>
-            </div>
-            <div class="popular-row">
-                <div class="popular-rank">🥉</div>
-                <div class="popular-body">
-                    <div class="popular-name">Manop Y.</div>
-                    <div class="popular-meta">Last visit: 31 Jul · Fabric Selection</div>
-                </div>
-                <div class="popular-count">2×</div>
             </div>
 
         </div>
@@ -986,10 +938,9 @@
             <span class="material-symbols-outlined"
                 style="font-size:22px; font-variation-settings:'FILL' 1;">calendar_today</span>
         </a>
-        <a href="#" class="bnav-item active"
-            onclick="switchView(document.querySelectorAll('.tab-btn')[1],'month-view'); return false;">
-            <span class="material-symbols-outlined bnav-icon">bar_chart</span>
-            <span data-i18n="bnav-summary">Summary</span>
+        <a href="#" class="bnav-item active" onclick="toggleAdminView(); return false;">
+            <span class="material-symbols-outlined bnav-icon" id="view-toggle-icon">bar_chart</span>
+            <span id="view-toggle-text" data-i18n="bnav-summary">Summary</span>
         </a>
     </nav>
 
@@ -1046,12 +997,49 @@
         // Initial setup for dates
         updateAdminTranslations();
 
-        // ── View tabs ──
-        function switchView(btn, panelId) {
-            document.querySelectorAll('#view-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(panelId).classList.add('active');
+        // ── View Toggle ──
+        function toggleAdminView() {
+            const todayView = document.getElementById('today-view');
+            const monthView = document.getElementById('month-view');
+            const toggleText = document.getElementById('view-toggle-text');
+            const toggleIcon = document.getElementById('view-toggle-icon');
+            const lang = localStorage.getItem('lang') || 'th';
+            
+            const searchWrap = document.querySelector('.search-wrap');
+            const statsRow = document.querySelector('.stats-row');
+            const monthNav = document.querySelector('.month-nav');
+            const datePicker = document.getElementById('date-picker');
+            const greeting = document.querySelector('.page-wrap > .anim-1');
+            
+            if (todayView.classList.contains('active')) {
+                // Switch to Summary
+                todayView.classList.remove('active');
+                monthView.classList.add('active');
+                
+                if (searchWrap) searchWrap.style.display = 'none';
+                if (statsRow) statsRow.style.display = 'none';
+                if (datePicker) datePicker.style.display = 'none';
+                if (monthNav) monthNav.style.display = 'none';
+                if (greeting) greeting.style.display = 'none';
+                
+                toggleIcon.textContent = 'calendar_month';
+                toggleText.textContent = lang === 'en' ? 'Schedule' : 'ตารางคิว';
+                toggleText.setAttribute('data-i18n', 'bnav-schedule');
+            } else {
+                // Switch to Schedule
+                monthView.classList.remove('active');
+                todayView.classList.add('active');
+                
+                if (searchWrap) searchWrap.style.display = '';
+                if (statsRow) statsRow.style.display = '';
+                if (datePicker) datePicker.style.display = '';
+                if (monthNav) monthNav.style.display = '';
+                if (greeting) greeting.style.display = '';
+                
+                toggleIcon.textContent = 'bar_chart';
+                toggleText.textContent = lang === 'en' ? 'Summary' : 'สรุป';
+                toggleText.setAttribute('data-i18n', 'bnav-summary');
+            }
         }
 
         // --- Filter State ---
