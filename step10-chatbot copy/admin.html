@@ -603,142 +603,12 @@
                     data-i18n="admin-filter-done">Done</button>
             </div>
 
-            <!-- Appointment 1 — Bespoke -->
-            <div class="appt-card bespoke anim-4" data-status="pending" data-date="TODAY">
-                <div class="appt-avatar">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfLoNpwL9s3cubBRx29PNWj7_XiWDtYMXcLNmcI0Miwy96JP0l3mQfryOjCpa4bW6vgwZ6uG_MSPKr8ouiZWmgducLGKeYYAPU0vaYNzDkb_lBuFqO2qhr0JPeP0xFkoemWLdOCiIaOZGycEXFVKuOpUVKtMV8QagJdFMoHuVeATlsSoS_Psi3-qORg-oPnjwqCoBfQBmvUMcHqbkhcl5UVyRzeb_OQnHwqYwxFBfF1zXhgIOkZw-U"
-                        alt="">
-                    <div class="appt-dot" style="background:#cc6600;"></div>
-                </div>
-                <div class="appt-body">
-                    <div class="appt-top">
-                        <div>
-                            <div class="appt-name">Thanathorn S.</div>
-                            <span class="badge badge-pending" data-en="Pending" data-th="คิวบริการ">Pending</span>
-                        </div>
-                        <div style="display:flex; gap:4px;">
-                            <button class="icon-btn"
-                                onclick="openEditModal('Thanathorn S.', '081-234-5678', 2, '2026-08-04', '10:30', 'fitting')"><span
-                                    class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
-                            <button class="icon-btn danger"><span class="material-symbols-outlined"
-                                    style="font-size:14px;">delete</span></button>
-                        </div>
-                    </div>
-                    <div class="appt-details">
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">group</span>
-                            <span data-en="2 People" data-th="2 ท่าน">2 ท่าน</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">event</span>
-                            <span data-en="4 Aug 2026" data-th="4 ส.ค. 2569">4 ส.ค. 2569</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">schedule</span>
-                            <span>10:30 - 11:30</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">call</span>
-                            <span>081-234-5678</span>
-                        </div>
-                        <div class="service-chip">
-                            <span class="material-symbols-outlined" style="font-size:11px;">straighten</span>
-                            <span data-en="Bespoke Suit Fitting" data-th="วัดตัวตัดสูท Bespoke">วัดตัวตัดสูท
-                                Bespoke</span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Empty state when no appointments -->
+            <div class="empty-state" id="empty-state" style="display:none; text-align:center; padding:40px 20px; color:var(--ink-3); font-size:13px; font-style:italic;">
+                <span class="material-symbols-outlined" style="font-size:36px; display:block; margin-bottom:8px; color:var(--ink-3);">calendar_today</span>
+                <span data-en="No appointments" data-th="ไม่มีคิวบริการ">ไม่มีคิวบริการ</span>
             </div>
 
-            <!-- Appointment 2 -->
-            <div class="appt-card anim-4" data-status="pending" data-date="TOMORROW">
-                <div class="appt-avatar">
-                    <span class="material-symbols-outlined" style="font-size:22px;">person</span>
-                    <div class="appt-dot" style="background:#cc6600;"></div>
-                </div>
-                <div class="appt-body">
-                    <div class="appt-top">
-                        <div>
-                            <div class="appt-name">Attapol K.</div>
-                            <span class="badge badge-pending" data-en="Pending" data-th="คิวบริการ">Pending</span>
-                        </div>
-                        <div style="display:flex; gap:4px;">
-                            <button class="icon-btn"
-                                onclick="openEditModal('Attapol K.', '092-888-1234', 1, '2026-08-05', '13:15', 'consultation')"><span
-                                    class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
-                            <button class="icon-btn danger"><span class="material-symbols-outlined"
-                                    style="font-size:14px;">delete</span></button>
-                        </div>
-                    </div>
-                    <div class="appt-details">
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">group</span>
-                            <span data-en="1 Person" data-th="1 ท่าน">1 ท่าน</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">event</span>
-                            <span data-en="5 Aug 2026" data-th="5 ส.ค. 2569">5 ส.ค. 2569</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">schedule</span>
-                            <span>13:15 - 14:15</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">call</span>
-                            <span>092-888-1234</span>
-                        </div>
-                        <div class="service-chip">
-                            <span class="material-symbols-outlined" style="font-size:11px;">checkroom</span>
-                            <span data-en="Fitting Session #1" data-th="ลองสูท ครั้งที่ 1">ลองสูท ครั้งที่ 1</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Appointment 3 — Done -->
-            <div class="appt-card anim-5" data-status="done" data-date="TODAY">
-                <div class="appt-avatar">
-                    <span class="material-symbols-outlined" style="font-size:22px;">person</span>
-                    <div class="appt-dot" style="background:#2a7d4f;"></div>
-                </div>
-                <div class="appt-body">
-                    <div class="appt-top">
-                        <div>
-                            <div class="appt-name">Manop Y.</div>
-                            <span class="badge badge-confirm" data-en="Completed" data-th="เสร็จสิ้น">Completed</span>
-                        </div>
-                        <div style="display:flex; gap:4px;">
-                            <button class="icon-btn"
-                                onclick="openEditModal('Manop Y.', '086-555-9988', 3, '2026-08-04', '15:45', 'fabric')"><span
-                                    class="material-symbols-outlined" style="font-size:14px;">edit</span></button>
-                            <button class="icon-btn danger"><span class="material-symbols-outlined"
-                                    style="font-size:14px;">delete</span></button>
-                        </div>
-                    </div>
-                    <div class="appt-details">
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">group</span>
-                            <span data-en="3 People" data-th="3 ท่าน">3 ท่าน</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">event</span>
-                            <span data-en="4 Aug 2026" data-th="4 ส.ค. 2569">4 ส.ค. 2569</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">schedule</span>
-                            <span>15:45 - 17:00</span>
-                        </div>
-                        <div class="appt-row-detail">
-                            <span class="material-symbols-outlined">call</span>
-                            <span>086-555-9988</span>
-                        </div>
-                        <div class="service-chip">
-                            <span class="material-symbols-outlined" style="font-size:11px;">texture</span>
-                            <span data-en="Fabric Selection" data-th="เลือกผ้าตัดสูท">เลือกผ้าตัดสูท</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
         </div>
 
@@ -1048,6 +918,7 @@
 
         function applyFilters() {
             const cards = document.querySelectorAll('.appt-card');
+            let visibleCount = 0;
             cards.forEach(card => {
                 const cardDate = card.getAttribute('data-date');
                 const cardStatus = card.dataset.status;
@@ -1056,11 +927,17 @@
                 
                 if (dateMatch && statusMatch) {
                     card.style.display = '';
+                    visibleCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
+            const emptyState = document.getElementById('empty-state');
+            if (emptyState) {
+                emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
         }
+
 
         // ── Filter tabs (today view) ──
         function filterTab(btn, status) {

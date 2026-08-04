@@ -107,7 +107,10 @@ const dictionary = {
   "prof-tier": { en: "Member", th: "สมาชิก" },
   "prof-tab-upcoming": { en: "Upcoming", th: "กำลังจะมาถึง" },
   "prof-tab-history": { en: "History", th: "ประวัติการใช้งาน" },
+  "prof-no-upcoming": { en: "No upcoming appointments", th: "ไม่มีคิวบริการที่กำลังจะมาถึง" },
+  "prof-no-history": { en: "No past appointments", th: "ไม่มีประวัติการทำรายการ" },
   "bnav-profile": { en: "Profile", th: "โปรไฟล์" },
+
   
   // Edit Modal
   "admin-edit-title": { en: "Edit Appointment", th: "แก้ไขข้อมูลคิว" },

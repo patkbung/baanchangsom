@@ -203,65 +203,22 @@
 
     <!-- Upcoming View -->
     <div id="upcoming" class="view-panel active anim-3">
-        
-        <!-- Card 1 -->
-        <div class="cust-card pending">
-            <div class="cust-card-top">
-                <div>
-                    <div class="cust-service" data-i18n="svc-1-name">Fitting Appointment</div>
-                    <div class="cust-date">
-                        <span class="material-symbols-outlined" style="font-size:14px;">event</span>
-                        <span class="translate-me" data-en="4 Aug 2026" data-th="4 ส.ค. 2569">4 ส.ค. 2569</span>
-                    </div>
-                </div>
-                <span class="badge badge-pending" data-en="Pending" data-th="กำลังดำเนินการ">Pending</span>
-            </div>
-            <div class="cust-details">
-                <div class="cust-row">
-                    <span class="material-symbols-outlined" style="font-size:16px;">schedule</span>
-                    <span>10:30 - 11:30</span>
-                </div>
-                <div class="cust-row">
-                    <span class="material-symbols-outlined" style="font-size:16px;">group</span>
-                    <span class="translate-me" data-en="2 People" data-th="2 ท่าน">2 ท่าน</span>
-                </div>
-                <div class="cust-row" style="grid-column: span 2; margin-top:8px;">
-                    <span class="material-symbols-outlined" style="font-size:16px; color:#cc3333;">info</span>
-                    <span style="font-size:10px; color:var(--ink-3);" class="translate-me" data-en="To cancel or modify, please contact admin via LINE OA." data-th="หากต้องการแก้ไขหรือยกเลิกคิว กรุณาติดต่อแอดมินผ่าน LINE OA">หากต้องการแก้ไขหรือยกเลิกคิว กรุณาติดต่อแอดมินผ่าน LINE OA</span>
-                </div>
-            </div>
+        <!-- Empty State -->
+        <div style="text-align:center; padding:40px 20px; color:var(--ink-3); font-size:13px; font-style:italic;">
+            <span class="material-symbols-outlined" style="font-size:36px; display:block; margin-bottom:8px; color:var(--ink-3);">event_busy</span>
+            <span data-i18n="prof-no-upcoming">No upcoming appointments</span>
         </div>
-
     </div>
 
     <!-- History View -->
     <div id="history" class="view-panel anim-3">
-        
-        <!-- Card 2 -->
-        <div class="cust-card done">
-            <div class="cust-card-top">
-                <div>
-                    <div class="cust-service" data-i18n="svc-3-name">Fabric Selection</div>
-                    <div class="cust-date">
-                        <span class="material-symbols-outlined" style="font-size:14px;">event</span>
-                        <span class="translate-me" data-en="15 Jul 2026" data-th="15 ก.ค. 2569">15 ก.ค. 2569</span>
-                    </div>
-                </div>
-                <span class="badge badge-confirm" data-en="Completed" data-th="เสร็จสิ้น">Completed</span>
-            </div>
-            <div class="cust-details">
-                <div class="cust-row">
-                    <span class="material-symbols-outlined" style="font-size:16px;">schedule</span>
-                    <span>14:00 - 15:00</span>
-                </div>
-                <div class="cust-row">
-                    <span class="material-symbols-outlined" style="font-size:16px;">group</span>
-                    <span class="translate-me" data-en="1 Person" data-th="1 ท่าน">1 ท่าน</span>
-                </div>
-            </div>
+        <!-- Empty State -->
+        <div style="text-align:center; padding:40px 20px; color:var(--ink-3); font-size:13px; font-style:italic;">
+            <span class="material-symbols-outlined" style="font-size:36px; display:block; margin-bottom:8px; color:var(--ink-3);">history</span>
+            <span data-i18n="prof-no-history">No past appointments</span>
         </div>
-
     </div>
+
 
     <!-- Bottom Nav -->
     <nav class="bottom-nav">
