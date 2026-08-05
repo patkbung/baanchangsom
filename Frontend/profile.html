@@ -176,7 +176,7 @@
             <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()">TH</button>
             <div class="nav-user-text">
                 <div class="nav-user-label" data-i18n="nav-welcome">Welcome</div>
-                <div class="nav-user-name" id="user-name" data-i18n="nav-guest">Guest</div>
+                <div class="nav-user-name" id="user-name">Guest</div>
             </div>
             <div class="nav-avatar">
                 <img id="user-avatar" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover;">
@@ -229,9 +229,9 @@
         <a href="booking.html" class="bnav-center">
             <span class="material-symbols-outlined" style="font-size:22px; font-variation-settings:'FILL' 1;">event_upcoming</span>
         </a>
-        <a href="profile.html" class="bnav-item active">
-            <span class="material-symbols-outlined bnav-icon" style="font-variation-settings:'FILL' 1;">person</span>
-            <span data-i18n="bnav-profile">Profile</span>
+        <a href="profile.html" class="bnav-item active" id="nav-dynamic-item">
+            <span class="material-symbols-outlined bnav-icon" id="nav-dynamic-icon" style="font-variation-settings:'FILL' 1;">person</span>
+            <span id="nav-dynamic-text" data-i18n="bnav-profile">Profile</span>
         </a>
     </nav>
 
@@ -242,7 +242,7 @@
 
         async function initLiff() {
             try {
-                await liff.init({ liffId: "2010856397-xdbmpsr8" });
+                await liff.init({ liffId: "2010947166-BLk9wNiz" });
                 if (liff.isLoggedIn()) {
                     const profile = await liff.getProfile();
                     
@@ -265,17 +265,52 @@
                     }
 
                     // Authenticate with Backend
-                    const idToken = liff.getIDToken();
-                    if (idToken) {
+                    const token = liff.getAccessToken();
+                    if (token) {
                         await fetch(`${window.API_BASE_URL}/v1/auth/line/verify`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ idToken })
-                        });
+                            body: JSON.stringify({ idToken: token })
+                        }).catch(err => console.error('Verify failed:', err));
 
+                        // Check admin status to update navbar
+                        fetch(`${window.API_BASE_URL}/v1/admin/auth/line`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ idToken: token })
+                        })
+                        .then(res => {
+                            const dynamicLink = document.getElementById('nav-dynamic-item');
+                            const dynamicIcon = document.getElementById('nav-dynamic-icon');
+                            const dynamicText = document.getElementById('nav-dynamic-text');
+                            if (res.ok) {
+                                if (dynamicLink) {
+                                    dynamicLink.href = 'admin.html';
+                                    dynamicLink.classList.remove('active');
+                                }
+                                if (dynamicIcon) {
+                                    dynamicIcon.textContent = 'calendar_month';
+                                    dynamicIcon.style.fontVariationSettings = '';
+                                }
+                                if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-schedule');
+                            } else {
+                                if (dynamicLink) {
+                                    dynamicLink.href = 'profile.html';
+                                    dynamicLink.classList.add('active');
+                                }
+                                if (dynamicIcon) {
+                                    dynamicIcon.textContent = 'person';
+                                    dynamicIcon.style.fontVariationSettings = "'FILL' 1";
+                                }
+                                if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-profile');
+                            }
+                            if (typeof window.applyLang === 'function') window.applyLang();
+                        })
+                        .catch(err => console.error('Admin check failed:', err));
+ 
                         // Fetch user's appointments from Backend
                         const apptRes = await fetch(`${window.API_BASE_URL}/v1/me/appointments`, {
-                            headers: { 'Authorization': `Bearer ${idToken}` }
+                            headers: { 'Authorization': `Bearer ${token}` }
                         });
                         if (apptRes.ok) {
                             const resData = await apptRes.json();

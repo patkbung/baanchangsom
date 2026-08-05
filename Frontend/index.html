@@ -497,9 +497,9 @@
       <span class="material-symbols-outlined"
         style="font-size:22px; font-variation-settings:'FILL' 1;">calendar_add_on</span>
     </a>
-    <a href="admin.html" class="bnav-item">
-      <span class="material-symbols-outlined bnav-icon">calendar_month</span>
-      <span data-i18n="bnav-schedule">Schedule</span>
+    <a href="admin.html" class="bnav-item" id="nav-dynamic-item">
+      <span class="material-symbols-outlined bnav-icon" id="nav-dynamic-icon">calendar_month</span>
+      <span id="nav-dynamic-text" data-i18n="bnav-schedule">Schedule</span>
     </a>
   </nav>
 
@@ -519,6 +519,35 @@
             img.style.display = 'block';
             document.getElementById('user-avatar-fallback').style.display = 'none';
             document.getElementById('greeting-name').textContent = profile.displayName.split(' ')[0];
+
+            // Check admin status to update navbar
+            const token = liff.getAccessToken();
+            if (token) {
+              fetch(`${window.API_BASE_URL}/v1/admin/auth/line`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: token })
+              })
+              .then(res => {
+                const dynamicLink = document.getElementById('nav-dynamic-item');
+                const dynamicIcon = document.getElementById('nav-dynamic-icon');
+                const dynamicText = document.getElementById('nav-dynamic-text');
+                if (res.ok) {
+                  if (dynamicLink) dynamicLink.href = 'admin.html';
+                  if (dynamicIcon) dynamicIcon.textContent = 'calendar_month';
+                  if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-schedule');
+                } else {
+                  if (dynamicLink) dynamicLink.href = 'profile.html';
+                  if (dynamicIcon) {
+                    dynamicIcon.textContent = 'person';
+                    dynamicIcon.style.fontVariationSettings = "'FILL' 1";
+                  }
+                  if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-profile');
+                }
+                if (typeof window.applyLang === 'function') window.applyLang();
+              })
+              .catch(err => console.error('Admin check failed:', err));
+            }
             return;
           } else {
             liff.login();

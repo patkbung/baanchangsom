@@ -222,6 +222,100 @@
             background: rgba(0, 0, 0, 0.1);
         }
 
+        /* Custom dynamic card styling */
+        .appt-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .appt-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .appt-time {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .appt-service {
+            font-size: 11px;
+            color: var(--ink-3);
+            margin-top: 2px;
+        }
+
+        .appt-cust {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--ink-2);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 8px 0;
+            width: 100%;
+        }
+
+        .cust-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cust-info .material-symbols-outlined {
+            font-size: 14px;
+            color: var(--ink-3);
+        }
+
+        .appt-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px !important;
+            font-weight: 700;
+            color: var(--ink-2);
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            padding: 4px 10px;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.2s;
+            max-height: 24px;
+        }
+
+        .action-btn .material-symbols-outlined {
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--ink);
+        }
+
+        .action-btn.text-error {
+            color: #d32f2f;
+        }
+
+        .action-btn.text-error:hover {
+            background: #ffebee;
+        }
+
         /* FAB */
         .fab {
             position: fixed;
@@ -530,7 +624,7 @@
             <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()">TH</button>
             <div class="nav-user-text">
                 <div class="nav-user-label" data-i18n="nav-admin">Admin</div>
-                <div class="nav-user-name" id="user-name" data-i18n="nav-guest">Guest</div>
+                <div class="nav-user-name" id="user-name">Guest</div>
             </div>
             <div class="nav-avatar">
                 <img id="user-avatar" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover;">
@@ -602,11 +696,15 @@
                     data-i18n="admin-filter-pending">Pending</button>
                 <button class="tab-btn" onclick="filterTab(this,'done')" style="font-size:11px;"
                     data-i18n="admin-filter-done">Done</button>
+                <button class="tab-btn" onclick="filterTab(this,'cancelled')" style="font-size:11px;"
+                    data-i18n="admin-filter-cancelled">Cancelled</button>
             </div>
 
             <!-- Empty state when no appointments -->
-            <div class="empty-state" id="empty-state" style="display:none; text-align:center; padding:40px 20px; color:var(--ink-3); font-size:13px; font-style:italic;">
-                <span class="material-symbols-outlined" style="font-size:36px; display:block; margin-bottom:8px; color:var(--ink-3);">calendar_today</span>
+            <div class="empty-state" id="empty-state"
+                style="display:none; text-align:center; padding:40px 20px; color:var(--ink-3); font-size:13px; font-style:italic;">
+                <span class="material-symbols-outlined"
+                    style="font-size:36px; display:block; margin-bottom:8px; color:var(--ink-3);">calendar_today</span>
                 <span data-en="No appointments" data-th="ไม่มีคิวบริการ">ไม่มีคิวบริการ</span>
             </div>
 
@@ -722,28 +820,35 @@
                     <!-- Date Selection -->
                     <div class="premium-card">
                         <div class="form-label" data-i18n="form-date" style="margin-bottom:12px;">Date</div>
-                        <input type="date" id="edit-date" class="form-input" required>
+                        <input type="date" id="edit-date" class="form-input"
+                            style="max-width: 100%; box-sizing: border-box; padding: 0 14px;" required>
                     </div>
 
                     <!-- Service selection -->
                     <div class="premium-card">
-                        <div class="form-label" data-i18n="form-service" style="margin-bottom:12px;">Select Service</div>
+                        <div class="form-label" data-i18n="form-service" style="margin-bottom:12px;">Select Service
+                        </div>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <input type="radio" name="edit-service" id="esvc1" value="fitting" class="svc-radio" checked>
+                            <input type="radio" name="edit-service" id="esvc1" value="fitting" class="svc-radio"
+                                checked>
                             <label for="esvc1" class="svc-label">
-                                <div class="svc-icon"><span class="material-symbols-outlined" style="font-size:16px;">straighten</span></div>
+                                <div class="svc-icon"><span class="material-symbols-outlined"
+                                        style="font-size:16px;">straighten</span></div>
                                 <div>
                                     <div class="svc-name" data-i18n="svc-1-name">Fitting Appointment</div>
-                                    <div class="svc-desc" data-i18n="svc-1-desc">60 min · Measurements & adjustments</div>
+                                    <div class="svc-desc" data-i18n="svc-1-desc">60 min · Measurements & adjustments
+                                    </div>
                                 </div>
                             </label>
 
                             <input type="radio" name="edit-service" id="esvc2" value="consultation" class="svc-radio">
                             <label for="esvc2" class="svc-label">
-                                <div class="svc-icon"><span class="material-symbols-outlined" style="font-size:16px;">design_services</span></div>
+                                <div class="svc-icon"><span class="material-symbols-outlined"
+                                        style="font-size:16px;">design_services</span></div>
                                 <div>
                                     <div class="svc-name" data-i18n="svc-2-name">Design Consultation</div>
-                                    <div class="svc-desc" data-i18n="svc-2-desc">45 min · Fabric & pattern selection</div>
+                                    <div class="svc-desc" data-i18n="svc-2-desc">45 min · Fabric & pattern selection
+                                    </div>
                                 </div>
                             </label>
                         </div>
@@ -751,7 +856,8 @@
 
                     <!-- Number of People selection -->
                     <div class="premium-card" style="display:flex; flex-direction:column; align-items:center;">
-                        <div class="form-label" style="text-align:center; margin-bottom:12px;" data-i18n="form-people">Number of People</div>
+                        <div class="form-label" style="text-align:center; margin-bottom:12px;" data-i18n="form-people">
+                            Number of People</div>
                         <div class="stepper-wrap">
                             <button type="button" class="stepper-btn" onclick="updateEditStepper(-1)">
                                 <span class="material-symbols-outlined">remove</span>
@@ -767,8 +873,10 @@
                     <div id="edit-booking-details-container">
                         <!-- Time slots -->
                         <div class="premium-card">
-                            <div class="form-label" data-i18n="form-time" style="margin-bottom:12px;">Select Time Slot</div>
-                            <div id="edit-time-slots-container" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:7px;"></div>
+                            <div class="form-label" data-i18n="form-time" style="margin-bottom:12px;">Select Time Slot
+                            </div>
+                            <div id="edit-time-slots-container"
+                                style="display:grid; grid-template-columns:repeat(3, 1fr); gap:7px;"></div>
                         </div>
 
                         <!-- Personal info -->
@@ -777,19 +885,23 @@
 
                             <div id="edit-names-container" style="display:flex; flex-direction:column; gap:8px;">
                                 <div class="input-wrap">
-                                    <span class="material-symbols-outlined input-icon" style="font-size:16px;">person</span>
-                                    <input class="form-input edit-name-input" type="text" id="edit-name" placeholder="Full name (Person 1)" required>
+                                    <span class="material-symbols-outlined input-icon"
+                                        style="font-size:16px;">person</span>
+                                    <input class="form-input edit-name-input" type="text" id="edit-name"
+                                        placeholder="Full name (Person 1)" required>
                                 </div>
                             </div>
 
                             <div class="input-wrap">
                                 <span class="material-symbols-outlined input-icon" style="font-size:16px;">call</span>
-                                <input class="form-input" type="tel" id="edit-phone" placeholder="Phone number" required>
+                                <input class="form-input" type="tel" id="edit-phone" placeholder="Phone number"
+                                    required>
                             </div>
                         </div>
 
                         <button type="submit" class="submit-btn" id="edit-submit-btn" style="margin-top:8px;">
-                            <span class="material-symbols-outlined" style="font-size:16px; font-variation-settings:'FILL' 1;">save</span>
+                            <span class="material-symbols-outlined"
+                                style="font-size:16px; font-variation-settings:'FILL' 1;">save</span>
                             <span data-i18n="btn-save">Save Changes</span>
                         </button>
                     </div>
@@ -805,9 +917,9 @@
             <span class="material-symbols-outlined bnav-icon">home</span>
             <span data-i18n="bnav-home">Home</span>
         </a>
-        <a href="admin.html" class="bnav-center">
+        <a href="booking.html" class="bnav-center">
             <span class="material-symbols-outlined"
-                style="font-size:22px; font-variation-settings:'FILL' 1;">calendar_today</span>
+                style="font-size:22px; font-variation-settings:'FILL' 1;">event_upcoming</span>
         </a>
         <a href="#" class="bnav-item active" onclick="toggleAdminView(); return false;">
             <span class="material-symbols-outlined bnav-icon" id="view-toggle-icon">bar_chart</span>
@@ -818,6 +930,8 @@
     <script>
         // ── LIFF Profile ──
         const LIFF_ID = '2010947166-BLk9wNiz';
+        let allAppointments = [];
+
         async function loadProfile() {
             try {
                 if (LIFF_ID) {
@@ -829,6 +943,27 @@
                         img.src = profile.pictureUrl;
                         img.style.display = 'block';
                         document.getElementById('user-avatar-fallback').style.display = 'none';
+
+                        // Authenticate as Admin
+                        const token = liff.getAccessToken();
+                        if (token) {
+                            const authRes = await fetch(`${window.API_BASE_URL}/v1/admin/auth/line`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ idToken: token })
+                            });
+                            if (authRes.ok) {
+                                const authData = await authRes.json();
+                                const adminToken = authData.data.accessToken;
+                                localStorage.setItem('adminToken', adminToken);
+
+                                // Fetch all appointments
+                                await fetchAdminAppointments();
+                            } else {
+                                const errData = await authRes.json().catch(() => ({}));
+                                alert('Admin access denied: ' + (errData.error?.message || errData.message || 'Not an admin user'));
+                            }
+                        }
                     } else {
                         liff.login();
                     }
@@ -839,6 +974,195 @@
             }
         }
         loadProfile();
+
+        async function fetchAdminAppointments() {
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) return;
+
+            try {
+                const res = await fetch(`${window.API_BASE_URL}/v1/admin/appointments`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                if (res.ok) {
+                    const resData = await res.json();
+                    allAppointments = resData.data?.appointments || [];
+                    renderAdminAppointments();
+                }
+            } catch (e) {
+                console.error('Failed to fetch appointments:', e);
+            }
+        }
+
+        function renderAdminAppointments() {
+            const todayView = document.getElementById('today-view');
+            if (!todayView) return;
+
+            // Remove existing appt-card elements
+            document.querySelectorAll('.appt-card').forEach(el => el.remove());
+
+            const lang = localStorage.getItem('lang') || 'th';
+
+            allAppointments.forEach(appt => {
+                const card = document.createElement('div');
+                card.className = 'appt-card anim-3' + (appt.type === 'FITTING' ? ' bespoke' : '');
+                card.setAttribute('data-date', appt.date);
+
+                let statusVal = 'pending';
+                if (appt.status === 'COMPLETED') statusVal = 'done';
+                if (appt.status === 'CANCELLED') statusVal = 'cancelled';
+                if (appt.status === 'NO_SHOW') statusVal = 'no-show';
+                card.setAttribute('data-status', statusVal);
+
+                // Format Appointment Date
+                const dateObj = new Date(appt.date);
+                const dateText = lang === 'en'
+                    ? `${dateObj.getDate()} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][dateObj.getMonth()]} ${dateObj.getFullYear()}`
+                    : `${dateObj.getDate()} ${['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
+
+                // Parse specific guest details if saved in notes format, otherwise fallback to user record
+                let name = appt.user?.legalName || appt.user?.displayName || 'Customer';
+                let phone = appt.user?.phone || '-';
+                let notesText = appt.notes || '';
+                let serviceType = appt.type;
+
+                if (notesText.includes('ผู้จอง: ')) {
+                    const lines = notesText.split('\n');
+                    const serviceLine = lines.find(l => l.includes('บริการ: '));
+                    const nameLine = lines.find(l => l.includes('ผู้จอง: '));
+                    const phoneLine = lines.find(l => l.includes('เบอร์โทร: '));
+                    if (serviceLine) {
+                        const svcVal = serviceLine.replace(/.*บริการ:\s*/, '').trim();
+                        if (svcVal === 'fitting') serviceType = 'FITTING';
+                        else if (svcVal === 'consultation') serviceType = 'BOOKING';
+                    }
+                    if (nameLine) name = nameLine.replace(/.*ผู้จอง:\s*/, '').trim();
+                    if (phoneLine) phone = phoneLine.replace(/.*เบอร์โทร:\s*/, '').trim();
+                    notesText = lines.filter(l => !l.includes('บริการ: ') && !l.includes('ผู้จอง: ') && !l.includes('เบอร์โทร: ')).join('\n');
+                }
+
+                const serviceName = serviceType === 'FITTING' ? (lang === 'en' ? 'Fitting Appointment' : 'วัดตัวตัดชุด') : (lang === 'en' ? 'Design Consultation' : 'ปรึกษาการออกแบบ');
+                const isFitting = serviceType === 'FITTING';
+                const adminAddedLabel = (isFitting && appt.type === 'FITTING') ? `<span style="font-size:9px; color:#b48c46; font-weight:700; margin-left:6px; background:#fdf7e7; padding:2px 6px; border-radius:4px; border:0.5px solid rgba(180,140,70,0.25);">${lang === 'en' ? 'Admin Added' : 'แอดมินเพิ่มคิว'}</span>` : '';
+
+                let badgeClass = 'badge-pending';
+                let statusLabel = lang === 'en' ? 'Confirmed' : 'ยืนยันแล้ว';
+                if (appt.status === 'CANCELLED') {
+                    badgeClass = 'badge-cancelled';
+                    statusLabel = lang === 'en' ? 'Cancelled' : 'ยกเลิกแล้ว';
+                } else if (appt.status === 'COMPLETED') {
+                    badgeClass = 'badge-confirm';
+                    statusLabel = lang === 'en' ? 'Completed' : 'เสร็จสิ้น';
+                }
+
+                card.innerHTML = `
+                    <div class="appt-top" style="display:flex; gap:12px; align-items:center; width:100%;">
+                        <div class="appt-avatar" style="width:36px; height:36px; border-radius:50%; overflow:hidden; background:var(--bg-2); flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+                            <img src="${appt.user?.pictureUrl || ''}" alt="" style="width:100%; height:100%; object-fit:cover; ${appt.user?.pictureUrl ? 'display:block' : 'display:none'}">
+                            <span class="material-symbols-outlined" style="${appt.user?.pictureUrl ? 'display:none' : 'display:block'}; font-size:16px; color:var(--ink-3);">person</span>
+                        </div>
+                        <div style="flex:1;">
+                            <div class="appt-date" style="font-size:11px; font-weight:600; color:var(--ink-2);">${dateText}</div>
+                            <div class="appt-time" style="font-size:13px; font-weight:800; color:var(--ink); margin-top:2px;">${appt.startTime} - ${appt.endTime}</div>
+                            <div class="appt-service" style="font-size:11px; color:var(--ink-3); margin-top:2px; display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                                ${serviceName} ${adminAddedLabel}
+                            </div>
+                        </div>
+                        <span class="badge ${badgeClass}">${statusLabel}</span>
+                    </div>
+                    
+                    <div class="appt-cust">
+                        <div class="cust-info">
+                            <span class="material-symbols-outlined" style="font-size:14px;">person</span>
+                            <span class="cust-name">${name}</span>
+                        </div>
+                        <div class="cust-info">
+                            <span class="material-symbols-outlined" style="font-size:14px;">call</span>
+                            <span>${phone}</span>
+                        </div>
+                        <div class="cust-info" style="grid-column: span 2;">
+                            <span class="material-symbols-outlined" style="font-size:14px;">group</span>
+                            <span>${appt.partySize} ${lang === 'en' ? 'People' : 'ท่าน'}</span>
+                        </div>
+                        ${notesText ? `
+                        <div class="cust-info" style="grid-column: span 2; margin-top:4px;">
+                            <span class="material-symbols-outlined" style="font-size:14px;">notes</span>
+                            <span style="font-size:11px; white-space: pre-wrap;">${notesText}</span>
+                        </div>` : ''}
+                    </div>
+                    
+                    <div class="appt-actions">
+                        ${(appt.status !== 'COMPLETED' && appt.status !== 'CANCELLED') ? `
+                        <button class="action-btn text-success" onclick="completeBookingClick('${appt.id}')">
+                            <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span>
+                            <span>${lang === 'en' ? 'Done' : 'เสร็จสิ้น'}</span>
+                        </button>
+                        ` : ''}
+                        <button class="action-btn text-error" onclick="cancelBookingClick('${appt.id}')">
+                            <span class="material-symbols-outlined" style="font-size:16px;">cancel</span>
+                            <span data-i18n="btn-cancel">${lang === 'en' ? 'Cancel' : 'ยกเลิก'}</span>
+                        </button>
+                        <button class="action-btn" onclick="openEditModal('${appt.id}', '${name.replace(/'/g, "\\'")}', '${phone}', ${appt.partySize}, '${appt.date}', '${appt.startTime}', '${appt.type.toLowerCase()}')">
+                            <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                            <span data-i18n="btn-edit">${lang === 'en' ? 'Edit' : 'แก้ไข'}</span>
+                        </button>
+                    </div>
+                `;
+                todayView.appendChild(card);
+            });
+
+            applyFilters();
+            generateDatePicker(activeDateFilter);
+        }
+
+        window.completeBookingClick = async function (id) {
+            const confirmDone = confirm(localStorage.getItem('lang') === 'en' ? 'Are you sure you want to mark this booking as done?' : 'คุณแน่ใจหรือไม่ว่าต้องการทำเครื่องหมายคิวนี้เสร็จสิ้น?');
+            if (!confirmDone) return;
+
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) return;
+
+            try {
+                const res = await fetch(`${window.API_BASE_URL}/v1/admin/appointments/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ status: 'COMPLETED' })
+                });
+                if (res.ok) {
+                    alert(localStorage.getItem('lang') === 'en' ? 'Booking marked as completed' : 'ทำเครื่องหมายเสร็จสิ้นเรียบร้อยแล้ว');
+                    await fetchAdminAppointments();
+                } else {
+                    alert('Failed to update booking status');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        window.cancelBookingClick = async function (id) {
+            const confirmCancel = confirm(localStorage.getItem('lang') === 'en' ? 'Are you sure you want to cancel this booking?' : 'คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคิวนี้?');
+            if (!confirmCancel) return;
+
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) return;
+
+            try {
+                const res = await fetch(`${window.API_BASE_URL}/v1/admin/appointments/${id}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                if (res.ok) {
+                    alert(localStorage.getItem('lang') === 'en' ? 'Booking cancelled successfully' : 'ยกเลิกคิวเรียบร้อยแล้ว');
+                    await fetchAdminAppointments();
+                } else {
+                    alert('Failed to cancel booking');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
         // ── Custom Translations ──
         function updateAdminTranslations() {
@@ -875,24 +1199,24 @@
             const toggleText = document.getElementById('view-toggle-text');
             const toggleIcon = document.getElementById('view-toggle-icon');
             const lang = localStorage.getItem('lang') || 'th';
-            
+
             const searchWrap = document.querySelector('.search-wrap');
             const statsRow = document.querySelector('.stats-row');
             const monthNav = document.querySelector('.month-nav');
             const datePicker = document.getElementById('date-picker');
             const greeting = document.querySelector('.page-wrap > .anim-1');
-            
+
             if (todayView.classList.contains('active')) {
                 // Switch to Summary
                 todayView.classList.remove('active');
                 monthView.classList.add('active');
-                
+
                 if (searchWrap) searchWrap.style.display = 'none';
                 if (statsRow) statsRow.style.display = 'none';
                 if (datePicker) datePicker.style.display = 'none';
                 if (monthNav) monthNav.style.display = 'none';
                 if (greeting) greeting.style.display = 'none';
-                
+
                 toggleIcon.textContent = 'calendar_month';
                 toggleText.textContent = lang === 'en' ? 'Schedule' : 'ตารางคิว';
                 toggleText.setAttribute('data-i18n', 'bnav-schedule');
@@ -900,13 +1224,13 @@
                 // Switch to Schedule
                 monthView.classList.remove('active');
                 todayView.classList.add('active');
-                
+
                 if (searchWrap) searchWrap.style.display = '';
                 if (statsRow) statsRow.style.display = '';
                 if (datePicker) datePicker.style.display = '';
                 if (monthNav) monthNav.style.display = '';
                 if (greeting) greeting.style.display = '';
-                
+
                 toggleIcon.textContent = 'bar_chart';
                 toggleText.textContent = lang === 'en' ? 'Summary' : 'สรุป';
                 toggleText.setAttribute('data-i18n', 'bnav-summary');
@@ -925,7 +1249,7 @@
                 const cardStatus = card.dataset.status;
                 const dateMatch = (activeDateFilter === 'ALL' || cardDate === activeDateFilter);
                 const statusMatch = (activeStatusFilter === 'all' || cardStatus === activeStatusFilter);
-                
+
                 if (dateMatch && statusMatch) {
                     card.style.display = '';
                     visibleCount++;
@@ -1005,97 +1329,97 @@
                 if (!container) return;
                 container.innerHTML = '';
 
-            const lang = localStorage.getItem('lang') || 'th';
-            const lblClosed = lang === 'en' ? 'Closed' : 'หยุด';
-            const lblQueue = lang === 'en' ? 'Queue' : 'คิว';
-            const daysArrEn = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-            const daysArrTh = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
-            const daysArr = lang === 'en' ? daysArrEn : daysArrTh;
+                const lang = localStorage.getItem('lang') || 'th';
+                const lblClosed = lang === 'en' ? 'Closed' : 'หยุด';
+                const lblQueue = lang === 'en' ? 'Queue' : 'คิว';
+                const daysArrEn = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+                const daysArrTh = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+                const daysArr = lang === 'en' ? daysArrEn : daysArrTh;
 
-            const lblAll = lang === 'en' ? 'All' : 'ทั้งหมด';
+                const lblAll = lang === 'en' ? 'All' : 'ทั้งหมด';
 
-            // Update Picker Month Label
-            const elMonthLabel = document.getElementById('picker-month-label');
-            if (elMonthLabel) {
-                if (lang === 'en') {
-                    const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                    elMonthLabel.textContent = `${monthsEn[currentPickerMonth]} ${currentPickerYear}`;
-                } else {
-                    const monthsTh = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-                    elMonthLabel.textContent = `${monthsTh[currentPickerMonth]} ${currentPickerYear + 543}`;
+                // Update Picker Month Label
+                const elMonthLabel = document.getElementById('picker-month-label');
+                if (elMonthLabel) {
+                    if (lang === 'en') {
+                        const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                        elMonthLabel.textContent = `${monthsEn[currentPickerMonth]} ${currentPickerYear}`;
+                    } else {
+                        const monthsTh = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                        elMonthLabel.textContent = `${monthsTh[currentPickerMonth]} ${currentPickerYear + 543}`;
+                    }
                 }
-            }
 
-            // "All" button
+                // "All" button
 
-            // "All" button
-            const allBtn = document.createElement('div');
-            allBtn.className = 'date-pill' + (!activeDateStr || activeDateStr === 'ALL' ? ' active' : '');
-            allBtn.setAttribute('data-date-id', 'ALL');
-            allBtn.onclick = () => filterByDate('ALL', allBtn);
-            allBtn.innerHTML = `
+                // "All" button
+                const allBtn = document.createElement('div');
+                allBtn.className = 'date-pill' + (!activeDateStr || activeDateStr === 'ALL' ? ' active' : '');
+                allBtn.setAttribute('data-date-id', 'ALL');
+                allBtn.onclick = () => filterByDate('ALL', allBtn);
+                allBtn.innerHTML = `
                 <div class="date-pill-day" style="color:var(--ink-3);">${lblAll}</div>
                 <div class="date-pill-num"><span class="material-symbols-outlined" style="font-size:24px;">calendar_month</span></div>
             `;
-            container.appendChild(allBtn);
+                container.appendChild(allBtn);
 
-            const today = new Date();
+                const today = new Date();
 
-            // Inject dates into dummy cards for demo before rendering
-            const dToday = new Date(today);
-            const strToday = dToday.toISOString().split('T')[0];
-            const dTom = new Date(today);
-            dTom.setDate(dTom.getDate() + 1);
-            const strTom = dTom.toISOString().split('T')[0];
+                // Inject dates into dummy cards for demo before rendering
+                const dToday = new Date(today);
+                const strToday = dToday.toISOString().split('T')[0];
+                const dTom = new Date(today);
+                dTom.setDate(dTom.getDate() + 1);
+                const strTom = dTom.toISOString().split('T')[0];
 
-            document.querySelectorAll('[data-date="TODAY"]').forEach(el => el.setAttribute('data-date', strToday));
-            document.querySelectorAll('[data-date="TOMORROW"]').forEach(el => el.setAttribute('data-date', strTom));
+                document.querySelectorAll('[data-date="TODAY"]').forEach(el => el.setAttribute('data-date', strToday));
+                document.querySelectorAll('[data-date="TOMORROW"]').forEach(el => el.setAttribute('data-date', strTom));
 
-            // Count queues per date
-            const counts = {};
-            document.querySelectorAll('.appt-card').forEach(card => {
-                const date = card.getAttribute('data-date');
-                if (date) {
-                    counts[date] = (counts[date] || 0) + 1;
-                }
-            });
+                // Count queues per date
+                const counts = {};
+                document.querySelectorAll('.appt-card').forEach(card => {
+                    const date = card.getAttribute('data-date');
+                    if (date) {
+                        counts[date] = (counts[date] || 0) + 1;
+                    }
+                });
 
-            // Generate days for the selected month
-            const daysInMonth = new Date(currentPickerYear, currentPickerMonth + 1, 0).getDate();
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateObj = new Date(currentPickerYear, currentPickerMonth, d);
+                // Generate days for the selected month
+                const daysInMonth = new Date(currentPickerYear, currentPickerMonth + 1, 0).getDate();
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateObj = new Date(currentPickerYear, currentPickerMonth, d);
 
-                const yr = dateObj.getFullYear();
-                const mo = String(dateObj.getMonth() + 1).padStart(2, '0');
-                const dy = String(dateObj.getDate()).padStart(2, '0');
-                const dateStr = `${yr}-${mo}-${dy}`;
+                    const yr = dateObj.getFullYear();
+                    const mo = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const dy = String(dateObj.getDate()).padStart(2, '0');
+                    const dateStr = `${yr}-${mo}-${dy}`;
 
-                const dow = dateObj.getDay();
-                const dayName = daysArr[dow];
-                const dateNum = dateObj.getDate();
-                const isSunday = dow === 0;
+                    const dow = dateObj.getDay();
+                    const dayName = daysArr[dow];
+                    const dateNum = dateObj.getDate();
+                    const isSunday = dow === 0;
 
-                const count = counts[dateStr] || 0;
-                let countHtml = '';
-                if (isSunday) {
-                    countHtml = `<div class="date-pill-count" style="color:#cc3333;">${lblClosed}</div>`;
-                } else if (count > 0) {
-                    countHtml = `<div class="date-pill-count">${count} ${lblQueue}</div>`;
-                }
+                    const count = counts[dateStr] || 0;
+                    let countHtml = '';
+                    if (isSunday) {
+                        countHtml = `<div class="date-pill-count" style="color:#cc3333;">${lblClosed}</div>`;
+                    } else if (count > 0) {
+                        countHtml = `<div class="date-pill-count">${count} ${lblQueue}</div>`;
+                    }
 
-                const pill = document.createElement('div');
-                pill.className = 'date-pill' + (isSunday ? ' faded' : '') + (activeDateStr === dateStr ? ' active' : '');
-                pill.setAttribute('data-date-id', dateStr);
-                pill.onclick = () => filterByDate(dateStr, pill);
+                    const pill = document.createElement('div');
+                    pill.className = 'date-pill' + (isSunday ? ' faded' : '') + (activeDateStr === dateStr ? ' active' : '');
+                    pill.setAttribute('data-date-id', dateStr);
+                    pill.onclick = () => filterByDate(dateStr, pill);
 
-                pill.innerHTML = `
+                    pill.innerHTML = `
                     <div class="date-pill-day">${dayName}</div>
                     <div class="date-pill-num">${dateNum}</div>
                     ${countHtml}
                 `;
-                container.appendChild(pill);
-            }
-            } catch(err) {
+                    container.appendChild(pill);
+                }
+            } catch (err) {
                 alert("Date Picker Error: " + err.message + "\nLine: " + err.lineNumber);
                 console.error(err);
             }
@@ -1116,7 +1440,7 @@
         // --- Edit Modal Logic ---
         const editModal = document.getElementById('edit-modal');
 
-        window.updateEditStepper = function(delta) {
+        window.updateEditStepper = function (delta) {
             const input = document.getElementById('edit-num-people');
             let val = parseInt(input.value, 10);
             val += delta;
@@ -1127,30 +1451,30 @@
             handleEditPeopleChange();
         };
 
-        window.handleEditPeopleChange = function(initialName = null) {
+        window.handleEditPeopleChange = function (initialName = null) {
             const input = document.getElementById('edit-num-people');
             if (!input) return;
             const val = parseInt(input.value, 10);
-            
+
             // Update time slots dynamically
             let duration = 1;
             if (val >= 4 && val <= 6) duration = 2;
             else if (val === 7) duration = 3;
-            
+
             const timeContainer = document.getElementById('edit-time-slots-container');
             if (timeContainer) {
                 const activeTime = document.querySelector('input[name="edit-time"]:checked')?.value;
                 timeContainer.innerHTML = '';
                 let checkedAdded = false;
-                
+
                 for (let hour = 9; hour <= 16; hour++) {
                     const endHour = hour + duration;
                     if (endHour > 17) continue;
                     if (hour < 12 && endHour > 11) continue;
-                    
+
                     const tVal = `${hour}:00`;
                     const tId = 'et' + hour;
-                    
+
                     const radio = document.createElement('input');
                     radio.type = 'radio';
                     radio.name = 'edit-time';
@@ -1161,38 +1485,38 @@
                         radio.checked = true;
                         checkedAdded = true;
                     }
-                    
+
                     const label = document.createElement('label');
                     label.htmlFor = tId;
                     label.className = 'time-label';
-                    
+
                     const span = document.createElement('span');
                     span.className = 'time-text';
                     span.textContent = `${hour.toString().padStart(2, '0')}:00 – ${endHour.toString().padStart(2, '0')}:00`;
-                    
+
                     label.appendChild(span);
                     timeContainer.appendChild(radio);
                     timeContainer.appendChild(label);
                 }
             }
-            
+
             // Update Name Inputs
             const namesContainer = document.getElementById('edit-names-container');
             if (namesContainer) {
                 const existingInputs = namesContainer.querySelectorAll('.edit-name-input');
                 const existingValues = Array.from(existingInputs).map(inp => inp.value);
-                
+
                 namesContainer.innerHTML = '';
                 const lang = localStorage.getItem('lang') || 'th';
                 for (let i = 1; i <= val; i++) {
                     const wrap = document.createElement('div');
                     wrap.className = 'input-wrap';
-                    
+
                     const icon = document.createElement('span');
                     icon.className = 'material-symbols-outlined input-icon';
                     icon.style.fontSize = '16px';
                     icon.textContent = 'person';
-                    
+
                     const inputEl = document.createElement('input');
                     inputEl.className = 'form-input edit-name-input';
                     inputEl.type = 'text';
@@ -1204,7 +1528,7 @@
                     } else {
                         inputEl.value = existingValues[i - 1] || '';
                     }
-                    
+
                     wrap.appendChild(icon);
                     wrap.appendChild(inputEl);
                     namesContainer.appendChild(wrap);
@@ -1212,23 +1536,24 @@
             }
         };
 
-        function openEditModal(name, phone, pax, date, time, service) {
+        function openEditModal(id, name, phone, pax, date, time, service) {
+            window.editingAppointmentId = id;
             editModal.classList.add('open');
             document.body.style.overflow = 'hidden';
-            
+
             document.getElementById('edit-date').value = date;
             document.getElementById('edit-phone').value = phone;
-            
+
             document.getElementById('edit-num-people').value = pax;
             document.getElementById('edit-num-people-val').textContent = pax;
-            
+
             document.querySelectorAll('input[name="edit-service"]').forEach(rad => {
                 if (rad.value === service) rad.checked = true;
             });
-            
+
             // Generate name inputs & time slots
             handleEditPeopleChange(name);
-            
+
             // Set the active time slot radio button
             const hour = parseInt(time.split(':')[0]);
             const radioEl = document.getElementById('et' + hour);
@@ -1242,21 +1567,62 @@
             document.body.style.overflow = '';
         }
 
-        document.getElementById('edit-form')?.addEventListener('submit', e => {
+        document.getElementById('edit-form')?.addEventListener('submit', async e => {
             e.preventDefault();
+            const id = window.editingAppointmentId;
+            if (!id) return;
+
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) return;
+
+            const date = document.getElementById('edit-date').value;
             const timeRadio = document.querySelector('input[name="edit-time"]:checked');
             const timeVal = timeRadio ? timeRadio.value : '';
-            // Dummy conflict check 
-            if (timeVal === '10:00' || timeVal === '13:00' || timeVal === '15:00') {
-                const lang = localStorage.getItem('lang');
-                alert(lang === 'en' ? 'Error: Time slot already booked!' : 'ข้อผิดพลาด: เวลานี้มีคิวจองแล้ว!');
-                return;
+            if (!timeVal) return;
+
+            const partySize = parseInt(document.getElementById('edit-num-people').value, 10);
+            const serviceRadio = document.querySelector('input[name="edit-service"]:checked');
+            const serviceVal = serviceRadio ? serviceRadio.value : 'consultation';
+            const nameInputs = document.querySelectorAll('.edit-name-input');
+            const legalName = nameInputs[0].value.trim();
+            const guestNames = Array.from(nameInputs).map((inp, idx) => `คนที่ ${idx + 1}: ${inp.value.trim()}`).join('\n');
+            const phone = document.getElementById('edit-phone').value.trim();
+
+            const notes = `บริการ: ${serviceVal}\nผู้จอง: ${legalName}\nเบอร์โทร: ${phone}\n${guestNames}`;
+
+            try {
+                const res = await fetch(`${window.API_BASE_URL}/v1/admin/appointments/${id}/reschedule`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({
+                        date,
+                        startTime: timeVal,
+                        partySize,
+                        notes
+                    })
+                });
+
+                if (res.ok) {
+                    const lang = localStorage.getItem('lang');
+                    alert(lang === 'en' ? 'Saved successfully!' : 'บันทึกการแก้ไขเรียบร้อยแล้ว!');
+                    closeEditModal();
+                    await fetchAdminAppointments();
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    alert(errData.message || 'Failed to save appointment changes');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('An error occurred while saving');
             }
-            const lang = localStorage.getItem('lang');
-            alert(lang === 'en' ? 'Saved successfully (Demo)!' : 'บันทึกสำเร็จ (Demo)!');
-            closeEditModal();
         });
 
+        document.getElementById('edit-phone')?.addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        });
     </script>
 </body>
 

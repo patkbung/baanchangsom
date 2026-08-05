@@ -80,6 +80,7 @@ const dictionary = {
   "admin-filter-all": { en: "All", th: "ทั้งหมด" },
   "admin-filter-pending": { en: "Service Queue", th: "คิวบริการ" },
   "admin-filter-done": { en: "Done", th: "เสร็จสิ้น" },
+  "admin-filter-cancelled": { en: "Cancelled", th: "ยกเลิกแล้ว" },
   "tab-all": { en: "All", th: "ทั้งหมด" },
   "tab-upcoming": { en: "Upcoming", th: "กำลังจะมาถึง" },
   "tab-done": { en: "Done", th: "เสร็จสิ้นแล้ว" },
@@ -161,6 +162,9 @@ function applyLang() {
   
   if (typeof updateAdminTranslations === 'function') {
     updateAdminTranslations();
+  }
+  if (typeof renderAdminAppointments === 'function') {
+    renderAdminAppointments();
   }
   
   if (typeof handlePeopleChange === 'function') {

@@ -85,7 +85,7 @@
       <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()">TH</button>
       <div class="nav-user-text">
         <div class="nav-user-label" data-i18n="nav-welcome">Welcome</div>
-        <div class="nav-user-name" id="user-name" data-i18n="nav-guest">Guest</div>
+        <div class="nav-user-name" id="user-name">Guest</div>
       </div>
       <div class="nav-avatar">
         <img id="user-avatar" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover;">
@@ -107,6 +107,7 @@
         data-i18n="appt-subtitle">Pick a Date</div>
       <div style="font-size:12px; color:var(--ink-3); margin-top:4px;" data-i18n="appt-desc">Tap a date on the calendar
         to book instantly</div>
+      <div id="liff-debug" style="font-size:10px; color:red; font-family:monospace; text-align:center; padding:5px; margin-top:5px; display:none; background:#fee; border-radius:4px;"></div>
     </div>
 
     <!-- Calendar Card -->
@@ -277,9 +278,9 @@
       <span class="material-symbols-outlined"
         style="font-size:22px; font-variation-settings:'FILL' 1;">event_upcoming</span>
     </a>
-    <a href="admin.html" class="bnav-item">
-      <span class="material-symbols-outlined bnav-icon">calendar_month</span>
-      <span data-i18n="bnav-schedule">Schedule</span>
+    <a href="admin.html" class="bnav-item" id="nav-dynamic-item">
+      <span class="material-symbols-outlined bnav-icon" id="nav-dynamic-icon">calendar_month</span>
+      <span id="nav-dynamic-text" data-i18n="bnav-schedule">Schedule</span>
     </a>
   </nav>
 
@@ -292,12 +293,69 @@
           await liff.init({ liffId: LIFF_ID });
           if (liff.isLoggedIn()) {
             const p = await liff.getProfile();
+            window.lineDisplayName = p.displayName;
+            if (typeof window.handlePeopleChange === 'function') window.handlePeopleChange();
             document.getElementById('user-name').textContent = p.displayName;
             const img = document.getElementById('user-avatar');
             img.src = p.pictureUrl;
             img.style.display = 'block';
             document.getElementById('user-avatar-fallback').style.display = 'none';
+            const token = liff.getAccessToken();
+            
+            // Print debug info
+            const debugEl = document.getElementById('liff-debug');
+            if (debugEl) {
+              debugEl.textContent = `InClient: ${liff.isInClient()}, LoggedIn: ${liff.isLoggedIn()}, Token: ${token ? token.slice(0, 15) : 'none'}..., HasDots: ${token ? token.includes('.') : false}`;
+              debugEl.style.display = 'block';
+            }
+
+            if (token) {
+              await fetch(`${window.API_BASE_URL}/v1/auth/line/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: token })
+              }).catch(err => console.error('Backend verify failed:', err));
+
+              // Check admin status to update navbar
+              fetch(`${window.API_BASE_URL}/v1/admin/auth/line`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: token })
+              })
+              .then(res => {
+                const dynamicLink = document.getElementById('nav-dynamic-item');
+                const dynamicIcon = document.getElementById('nav-dynamic-icon');
+                const dynamicText = document.getElementById('nav-dynamic-text');
+                if (res.ok) {
+                  if (dynamicLink) dynamicLink.href = 'admin.html';
+                  if (dynamicIcon) dynamicIcon.textContent = 'calendar_month';
+                  if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-schedule');
+                } else {
+                  if (dynamicLink) dynamicLink.href = 'profile.html';
+                  if (dynamicIcon) {
+                    dynamicIcon.textContent = 'person';
+                    dynamicIcon.style.fontVariationSettings = "'FILL' 1";
+                  }
+                  if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-profile');
+                }
+                if (typeof window.applyLang === 'function') window.applyLang();
+              })
+              .catch(err => console.error('Admin check failed:', err));
+            }
+
+            // Phone input restrict to 10 digits and numbers only
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput) {
+              phoneInput.addEventListener('input', e => {
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+              });
+            }
           } else {
+            const debugEl = document.getElementById('liff-debug');
+            if (debugEl) {
+              debugEl.textContent = `Not logged in. Redirecting...`;
+              debugEl.style.display = 'block';
+            }
             liff.login();
           }
         }
@@ -478,8 +536,11 @@
       btn.innerHTML = '<span class="material-symbols-outlined spin" style="font-size:18px;">progress_activity</span> Processing…';
 
       try {
-        const idToken = liff.getIDToken();
-        if (!idToken) throw new Error('LINE Login required');
+        const token = liff.getAccessToken();
+        if (!token) {
+          liff.login();
+          throw new Error('LINE Login token is missing. Redirecting to login to refresh scopes...');
+        }
 
         const monthStr = String(selMonth + 1).padStart(2, '0');
         const dayStr = String(selDay).padStart(2, '0');
@@ -489,43 +550,51 @@
         if (!selectedTimeRadio) throw new Error('Please select a time slot');
         const startTime = selectedTimeRadio.value;
         const partySize = parseInt(document.getElementById('num-people').value, 10);
+        const serviceRadio = document.querySelector('input[name="service"]:checked');
+        const serviceVal = serviceRadio ? serviceRadio.value : 'consultation';
         const legalName = nameInputs[0].value.trim();
-        const guestNames = Array.from(nameInputs).map((inp, idx) => `คนที่ ${idx+1}: ${inp.value.trim()}`).join('\n');
+        const guestNames = Array.from(nameInputs).map((inp, idx) => `คนที่ ${idx + 1}: ${inp.value.trim()}`).join('\n');
 
         // Step 1: Accept Consent
         const consentRes = await fetch(`${window.API_BASE_URL}/v1/me/consents`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ type: 'booking', version: 'v1', accepted: true })
         });
-        if (!consentRes.ok) throw new Error('Failed to record booking consent');
+        if (!consentRes.ok) {
+          const errData = await consentRes.json().catch(() => ({}));
+          throw new Error(errData.message || errData.error?.message || 'Failed to record booking consent');
+        }
 
         // Step 2: Update Profile
         const profileRes = await fetch(`${window.API_BASE_URL}/v1/me/profile`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ legalName, phone })
         });
-        if (!profileRes.ok) throw new Error('Failed to update user profile');
+        if (!profileRes.ok) {
+          const errData = await profileRes.json().catch(() => ({}));
+          throw new Error(errData.message || errData.error?.message || 'Failed to update user profile');
+        }
 
         // Step 3: Create Appointment
         const apptRes = await fetch(`${window.API_BASE_URL}/v1/appointments`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             date: dateIso,
             startTime: startTime,
             partySize: partySize,
-            notes: guestNames
+            notes: `บริการ: ${serviceVal}\nผู้จอง: ${legalName}\nเบอร์โทร: ${phone}\n${guestNames}`
           })
         });
 
@@ -534,9 +603,11 @@
           throw new Error(errData.message || 'Failed to create booking');
         }
 
-        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:\'FILL\' 1;">check_circle</span> Booking Confirmed!';
+        const currentLang = localStorage.getItem('lang') || 'th';
+        alert(currentLang === 'en' ? 'Booking confirmed successfully!' : 'ยืนยันการจองคิวของคุณเรียบร้อยแล้ว!');
+        btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:\'FILL\' 1;">check_circle</span> ${currentLang === 'en' ? 'Confirmed!' : 'ยืนยันสำเร็จ!'}`;
         btn.classList.add('success');
-        setTimeout(closeModal, 1800);
+        setTimeout(closeModal, 1000);
       } catch (err) {
         console.error('Booking Error:', err);
         alert('Booking Failed: ' + err.message);
@@ -574,13 +645,13 @@
         const timeContainer = document.getElementById('time-slots-container');
         if (timeContainer) {
           timeContainer.innerHTML = '<div style="grid-column: span 3; text-align:center; padding:12px; font-size:12px; color:var(--ink-3);">Loading availability...</div>';
-          
+
           let slots = [];
           try {
             const monthStr = String(selMonth + 1).padStart(2, '0');
             const dayStr = String(selDay).padStart(2, '0');
             const dateIso = `${selYear}-${monthStr}-${dayStr}`;
-            
+
             const res = await fetch(`${window.API_BASE_URL}/v1/availability?date=${dateIso}&partySize=${val}`);
             if (res.ok) {
               const resData = await res.json();
@@ -650,7 +721,12 @@
           input.type = 'text';
           input.placeholder = lang === 'en' ? `Full name (Person ${i})` : `ชื่อ-นามสกุล (คนที่ ${i})`;
           input.required = true;
-          if (i === 1) input.autocomplete = 'name';
+          if (i === 1) {
+            input.autocomplete = 'name';
+            if (window.lineDisplayName) {
+              input.value = window.lineDisplayName;
+            }
+          }
 
           wrap.appendChild(icon);
           wrap.appendChild(input);
