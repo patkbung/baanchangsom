@@ -235,8 +235,11 @@
         </a>
     </nav>
 
+    <script src="config.js"></script>
     <script src="lang.js"></script>
     <script>
+        let appointmentsData = [];
+
         async function initLiff() {
             try {
                 await liff.init({ liffId: "2010856397-xdbmpsr8" });
@@ -260,12 +263,159 @@
                         navImg.style.display = 'block';
                         document.getElementById('user-avatar-fallback').style.display = 'none';
                     }
+
+                    // Authenticate with Backend
+                    const idToken = liff.getIDToken();
+                    if (idToken) {
+                        await fetch(`${window.API_BASE_URL}/v1/auth/line/verify`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ idToken })
+                        });
+
+                        // Fetch user's appointments from Backend
+                        const apptRes = await fetch(`${window.API_BASE_URL}/v1/me/appointments`, {
+                            headers: { 'Authorization': `Bearer ${idToken}` }
+                        });
+                        if (apptRes.ok) {
+                            const resData = await apptRes.json();
+                            appointmentsData = resData.data?.appointments || [];
+                            renderAppointmentsList(appointmentsData);
+                        }
+                    }
+                } else {
+                    liff.login();
                 }
             } catch(e) {
                 console.error(e);
             }
         }
         initLiff();
+
+        function renderAppointmentsList(appointments) {
+            const upcomingContainer = document.getElementById('upcoming');
+            const historyContainer = document.getElementById('history');
+            if (!upcomingContainer || !historyContainer) return;
+            
+            upcomingContainer.innerHTML = '';
+            historyContainer.innerHTML = '';
+            
+            const upcomingAppointments = appointments.filter(a => a.status === 'CONFIRMED');
+            const historyAppointments = appointments.filter(a => a.status !== 'CONFIRMED');
+            
+            const lang = localStorage.getItem('lang') || 'th';
+            
+            // Render Upcoming
+            if (upcomingAppointments.length === 0) {
+                upcomingContainer.innerHTML = `
+                    <div style="text-align:center; padding:40px 20px; color:var(--ink-3); font-size:13px; font-style:italic;">
+                        <span class="material-symbols-outlined" style="font-size:36px; display:block; margin-bottom:8px; color:var(--ink-3);">event_busy</span>
+                        <span>${lang === 'en' ? 'No upcoming appointments' : 'ไม่มีคิวบริการที่กำลังจะมาถึง'}</span>
+                    </div>
+                `;
+            } else {
+                upcomingAppointments.forEach(appt => {
+                    const card = document.createElement('div');
+                    card.className = 'cust-card pending';
+                    
+                    const dateObj = new Date(appt.date);
+                    const day = dateObj.getDate();
+                    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const standardMonthsTh = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                    const yr = dateObj.getFullYear();
+                    const yrTh = yr + 543;
+                    const dateText = lang === 'en' ? `${day} ${monthsEn[dateObj.getMonth()]} ${yr}` : `${day} ${standardMonthsTh[dateObj.getMonth()]} ${yrTh}`;
+                    
+                    const serviceName = appt.type === 'FITTING' ? (lang === 'en' ? 'Fitting Appointment' : 'วัดตัวตัดชุด') : (lang === 'en' ? 'Design Consultation' : 'ปรึกษาการออกแบบ');
+                    
+                    card.innerHTML = `
+                        <div class="cust-card-top">
+                            <div>
+                                <div class="cust-service">${serviceName}</div>
+                                <div class="cust-date">
+                                    <span class="material-symbols-outlined" style="font-size:14px;">event</span>
+                                    <span>${dateText}</span>
+                                </div>
+                            </div>
+                            <span class="badge badge-pending">${lang === 'en' ? 'Confirmed' : 'ยืนยันแล้ว'}</span>
+                        </div>
+                        <div class="cust-details">
+                            <div class="cust-row">
+                                <span class="material-symbols-outlined" style="font-size:16px;">schedule</span>
+                                <span>${appt.startTime} - ${appt.endTime}</span>
+                            </div>
+                            <div class="cust-row">
+                                <span class="material-symbols-outlined" style="font-size:16px;">group</span>
+                                <span>${appt.partySize} ${lang === 'en' ? 'People' : 'ท่าน'}</span>
+                            </div>
+                            ${appt.notes ? `
+                            <div class="cust-row" style="grid-column: span 2; margin-top:4px;">
+                                <span class="material-symbols-outlined" style="font-size:16px;">notes</span>
+                                <span style="font-size:11px; white-space: pre-wrap;">${appt.notes}</span>
+                            </div>` : ''}
+                            <div class="cust-row" style="grid-column: span 2; margin-top:8px;">
+                                <span class="material-symbols-outlined" style="font-size:16px; color:#cc3333;">info</span>
+                                <span style="font-size:10px; color:var(--ink-3);">${lang === 'en' ? 'To cancel or modify, please contact admin via LINE OA.' : 'หากต้องการแก้ไขหรือยกเลิกคิว กรุณาติดต่อแอดมินผ่าน LINE OA'}</span>
+                            </div>
+                        </div>
+                    `;
+                    upcomingContainer.appendChild(card);
+                });
+            }
+            
+            // Render History
+            if (historyAppointments.length === 0) {
+                historyContainer.innerHTML = `
+                    <div style="text-align:center; padding:40px 20px; color:var(--ink-3); font-size:13px; font-style:italic;">
+                        <span class="material-symbols-outlined" style="font-size:36px; display:block; margin-bottom:8px; color:var(--ink-3);">history</span>
+                        <span>${lang === 'en' ? 'No past appointments' : 'ไม่มีประวัติการทำรายการ'}</span>
+                    </div>
+                `;
+            } else {
+                historyAppointments.forEach(appt => {
+                    const card = document.createElement('div');
+                    card.className = 'cust-card done';
+                    
+                    const dateObj = new Date(appt.date);
+                    const day = dateObj.getDate();
+                    const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const standardMonthsTh = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                    const yr = dateObj.getFullYear();
+                    const yrTh = yr + 543;
+                    const dateText = lang === 'en' ? `${day} ${monthsEn[dateObj.getMonth()]} ${yr}` : `${day} ${standardMonthsTh[dateObj.getMonth()]} ${yrTh}`;
+                    
+                    const serviceName = appt.type === 'FITTING' ? (lang === 'en' ? 'Fitting Appointment' : 'วัดตัวตัดชุด') : (lang === 'en' ? 'Design Consultation' : 'ปรึกษาการออกแบบ');
+                    
+                    let statusText = lang === 'en' ? 'Completed' : 'เสร็จสิ้น';
+                    if (appt.status === 'CANCELLED') statusText = lang === 'en' ? 'Cancelled' : 'ยกเลิกแล้ว';
+                    if (appt.status === 'NO_SHOW') statusText = lang === 'en' ? 'No Show' : 'ไม่มาแสดงตัว';
+                    
+                    card.innerHTML = `
+                        <div class="cust-card-top">
+                            <div>
+                                <div class="cust-service">${serviceName}</div>
+                                <div class="cust-date">
+                                    <span class="material-symbols-outlined" style="font-size:14px;">event</span>
+                                    <span>${dateText}</span>
+                                </div>
+                            </div>
+                            <span class="badge ${appt.status === 'CANCELLED' ? 'badge-cancelled' : 'badge-confirm'}">${statusText}</span>
+                        </div>
+                        <div class="cust-details">
+                            <div class="cust-row">
+                                <span class="material-symbols-outlined" style="font-size:16px;">schedule</span>
+                                <span>${appt.startTime} - ${appt.endTime}</span>
+                            </div>
+                            <div class="cust-row">
+                                <span class="material-symbols-outlined" style="font-size:16px;">group</span>
+                                <span>${appt.partySize} ${lang === 'en' ? 'People' : 'ท่าน'}</span>
+                            </div>
+                        </div>
+                    `;
+                    historyContainer.appendChild(card);
+                });
+            }
+        }
 
         function switchTab(btn, panelId) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -282,6 +432,9 @@
                     el.textContent = el.getAttribute(`data-${lang}`);
                 }
             });
+            if (appointmentsData.length > 0) {
+                renderAppointmentsList(appointmentsData);
+            }
         }
         
         // Listen to applyLang hook
@@ -291,6 +444,7 @@
         
         // Initial setup
         updateProfileTranslations();
+
 
     </script>
 </body>

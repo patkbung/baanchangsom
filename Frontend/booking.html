@@ -7,6 +7,7 @@
   <title>Book an Appointment — BaanChangSom</title>
   <link rel="stylesheet" href="style.css">
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="config.js"></script>
   <script src="lang.js"></script>
   <style>
     /* Selected date banner */
@@ -361,7 +362,7 @@
         btn.textContent = d;
 
         if (!isPast) {
-          btn.addEventListener('click', () => {
+          btn.addEventListener('click', async () => {
             document.querySelectorAll('.cal-day.selected').forEach(el => el.classList.remove('selected'));
             btn.classList.add('selected');
             selDay = d; selMonth = mo; selYear = yr;
@@ -372,6 +373,7 @@
             const bookPrefix = lang === 'th' ? 'จองคิว — ' : 'Book — ';
             document.getElementById('modal-date-title').textContent = `${bookPrefix}${dateStr}`;
             openModal();
+            await handlePeopleChange();
           });
         }
         grid.appendChild(btn);
@@ -416,7 +418,7 @@
       document.body.style.overflow = 'hidden';
     }
 
-    function bookToday() {
+    async function bookToday() {
       selDay = TODAY.getDate();
       selMonth = TODAY.getMonth();
       selYear = TODAY.getFullYear();
@@ -429,6 +431,7 @@
       const bookPrefix = lang === 'th' ? 'จองคิว — ' : 'Book — ';
       document.getElementById('modal-date-title').textContent = `${bookPrefix}${dateStr}`;
       openModal();
+      await handlePeopleChange();
     }
 
     window.contactAdmin = async function contactAdmin() {
@@ -459,7 +462,7 @@
       document.getElementById('booking-form').reset();
     }
 
-    document.getElementById('booking-form').addEventListener('submit', e => {
+    document.getElementById('booking-form').addEventListener('submit', async e => {
       e.preventDefault();
       const nameInputs = document.querySelectorAll('.name-input');
       let allNamesValid = true;
@@ -469,17 +472,80 @@
 
       const phone = document.getElementById('phone').value.trim();
       if (!allNamesValid || !phone) return;
+
       const btn = document.getElementById('submit-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="material-symbols-outlined spin" style="font-size:18px;">progress_activity</span> Processing…';
-      setTimeout(() => {
+
+      try {
+        const idToken = liff.getIDToken();
+        if (!idToken) throw new Error('LINE Login required');
+
+        const monthStr = String(selMonth + 1).padStart(2, '0');
+        const dayStr = String(selDay).padStart(2, '0');
+        const dateIso = `${selYear}-${monthStr}-${dayStr}`;
+
+        const selectedTimeRadio = document.querySelector('input[name="time"]:checked');
+        if (!selectedTimeRadio) throw new Error('Please select a time slot');
+        const startTime = selectedTimeRadio.value;
+        const partySize = parseInt(document.getElementById('num-people').value, 10);
+        const legalName = nameInputs[0].value.trim();
+        const guestNames = Array.from(nameInputs).map((inp, idx) => `คนที่ ${idx+1}: ${inp.value.trim()}`).join('\n');
+
+        // Step 1: Accept Consent
+        const consentRes = await fetch(`${window.API_BASE_URL}/v1/me/consents`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: JSON.stringify({ type: 'booking', version: 'v1', accepted: true })
+        });
+        if (!consentRes.ok) throw new Error('Failed to record booking consent');
+
+        // Step 2: Update Profile
+        const profileRes = await fetch(`${window.API_BASE_URL}/v1/me/profile`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: JSON.stringify({ legalName, phone })
+        });
+        if (!profileRes.ok) throw new Error('Failed to update user profile');
+
+        // Step 3: Create Appointment
+        const apptRes = await fetch(`${window.API_BASE_URL}/v1/appointments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: JSON.stringify({
+            date: dateIso,
+            startTime: startTime,
+            partySize: partySize,
+            notes: guestNames
+          })
+        });
+
+        if (!apptRes.ok) {
+          const errData = await apptRes.json().catch(() => ({}));
+          throw new Error(errData.message || 'Failed to create booking');
+        }
+
         btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:\'FILL\' 1;">check_circle</span> Booking Confirmed!';
         btn.classList.add('success');
         setTimeout(closeModal, 1800);
-      }, 1400);
+      } catch (err) {
+        console.error('Booking Error:', err);
+        alert('Booking Failed: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px; font-variation-settings:\'FILL\' 1;">check_circle</span> ยืนยันการจอง';
+      }
     });
 
-    window.updateStepper = function (delta) {
+    window.updateStepper = async function (delta) {
       const input = document.getElementById('num-people');
       let val = parseInt(input.value, 10);
       val += delta;
@@ -487,10 +553,10 @@
       if (val > 8) val = 8;
       input.value = val;
       document.getElementById('num-people-val').textContent = val === 8 ? '8+' : val;
-      handlePeopleChange();
+      await handlePeopleChange();
     };
 
-    window.handlePeopleChange = function handlePeopleChange() {
+    window.handlePeopleChange = async function handlePeopleChange() {
       const input = document.getElementById('num-people');
       if (!input) return;
       const val = parseInt(input.value, 10);
@@ -504,45 +570,65 @@
         container.style.display = 'block';
         contactMsg.style.display = 'none';
 
-        // Update time slots dynamically
-        let duration = 1;
-        if (val >= 4 && val <= 6) duration = 2;
-        else if (val === 7) duration = 3;
-
+        // Update time slots dynamically from Backend
         const timeContainer = document.getElementById('time-slots-container');
         if (timeContainer) {
+          timeContainer.innerHTML = '<div style="grid-column: span 3; text-align:center; padding:12px; font-size:12px; color:var(--ink-3);">Loading availability...</div>';
+          
+          let slots = [];
+          try {
+            const monthStr = String(selMonth + 1).padStart(2, '0');
+            const dayStr = String(selDay).padStart(2, '0');
+            const dateIso = `${selYear}-${monthStr}-${dayStr}`;
+            
+            const res = await fetch(`${window.API_BASE_URL}/v1/availability?date=${dateIso}&partySize=${val}`);
+            if (res.ok) {
+              const resData = await res.json();
+              slots = resData.data?.slots || [];
+            }
+          } catch (e) {
+            console.error('Error fetching availability:', e);
+          }
+
           timeContainer.innerHTML = '';
           let checkedAdded = false;
 
-          for (let hour = 9; hour <= 16; hour++) {
-            const endHour = hour + duration;
-            if (endHour > 17) continue;
-            if (hour < 12 && endHour > 11) continue;
+          if (slots.length === 0) {
+            timeContainer.innerHTML = '<div style="grid-column: span 3; text-align:center; padding:12px; font-size:12px; color:var(--ink-3);">No time slots available</div>';
+          } else {
+            slots.forEach(slot => {
+              const tId = 't_' + slot.startTime.replace(':', '_');
 
-            const tId = 't' + hour;
+              const radio = document.createElement('input');
+              radio.type = 'radio';
+              radio.name = 'time';
+              radio.id = tId;
+              radio.value = slot.startTime;
+              radio.className = 'time-radio';
+              if (!slot.available) {
+                radio.disabled = true;
+              } else if (!checkedAdded) {
+                radio.checked = true;
+                checkedAdded = true;
+              }
 
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = 'time';
-            radio.id = tId;
-            radio.value = `${hour}:00`;
-            radio.className = 'time-radio';
-            if (!checkedAdded) {
-              radio.checked = true;
-              checkedAdded = true;
-            }
+              const label = document.createElement('label');
+              label.htmlFor = tId;
+              label.className = 'time-label' + (!slot.available ? ' disabled' : '');
+              if (!slot.available) {
+                label.style.opacity = '0.5';
+                label.style.pointerEvents = 'none';
+                label.style.textDecoration = 'line-through';
+              }
 
-            const label = document.createElement('label');
-            label.htmlFor = tId;
-            label.className = 'time-label';
+              const span = document.createElement('span');
+              span.className = 'time-text';
+              span.textContent = `${slot.startTime} – ${slot.endTime}`;
 
-            const span = document.createElement('span');
-            span.className = 'time-text';
-            span.textContent = `${hour.toString().padStart(2, '0')}:00 – ${endHour.toString().padStart(2, '0')}:00`;
-
-            label.appendChild(span);
-            timeContainer.appendChild(radio);
-            timeContainer.appendChild(label);
+              label.appendChild(span);
+              timeContainer.appendChild(radio);
+              timeContainer.appendChild(label);
+            });
           }
         }
 
