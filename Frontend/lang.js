@@ -146,7 +146,7 @@ function applyLang() {
 
   const langBtn = document.getElementById('lang-toggle-btn');
   if (langBtn) {
-    langBtn.textContent = currentLang === 'en' ? 'EN' : 'TH';
+    langBtn.textContent = currentLang === 'en' ? 'TH' : 'EN';
     langBtn.style.background = currentLang === 'en' ? 'var(--ink)' : 'var(--ink-3)';
   }
   
@@ -166,9 +166,20 @@ function applyLang() {
   if (typeof renderAdminAppointments === 'function') {
     renderAdminAppointments();
   }
+  if (typeof renderMonthlySummary === 'function') {
+    renderMonthlySummary();
+  }
   
   if (typeof handlePeopleChange === 'function') {
     handlePeopleChange();
+  }
+  
+  if (typeof renderAppointments === 'function') {
+    renderAppointments();
+  }
+
+  if (typeof renderAppointmentsList === 'function' && typeof appointmentsData !== 'undefined') {
+    renderAppointmentsList(appointmentsData);
   }
 }
 

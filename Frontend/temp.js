@@ -1,350 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book an Appointment — BaanChangSom</title>
-  <link rel="stylesheet" href="style.css">
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script src="config.js"></script>
-  <script src="lang.js"></script>
-  <style>
-    /* Selected date banner */
-    .date-banner {
-      background: var(--card-bg);
-      border-radius: var(--card-radius);
-      box-shadow: var(--card-shadow);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.25s;
-    }
-
-    .date-banner-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-      color: var(--ink-2);
-    }
-
-    .date-banner-text {
-      flex: 1;
-    }
-
-    .date-banner-main {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .date-banner-sub {
-      font-size: 11px;
-      color: var(--ink-3);
-      margin-top: 1px;
-    }
-
-    .date-banner.has-date .date-banner-icon {
-      background: var(--ink);
-      color: var(--white);
-    }
-
-    /* Info chip */
-    .info-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 6px 12px;
-      border-radius: 100px;
-      background: var(--card-bg);
-      box-shadow: var(--card-shadow);
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--ink-2);
-    }
-
-    .modal-center-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 2000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s;
-    }
-    .modal-center-overlay.open {
-      opacity: 1;
-      visibility: visible;
-    }
-    .modal-center-content {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 24px;
-      width: 90%;
-      max-width: 320px;
-      transform: scale(0.95) translateY(10px);
-      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-      position: relative;
-    }
-    .modal-center-overlay.open .modal-center-content {
-      transform: scale(1) translateY(0);
-    }
-  </style>
-</head>
-
-<body>
-  <div id="global-loader" class="global-loader">
-    <div class="spinner"></div>
-    <div class="loader-text" data-i18n="loading">Loading...</div>
-  </div>
-  <div class="top-fade"></div>
-  <a href="index.html" class="floating-logo">B.</a>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="nav-links">
-      <a href="booking.html" class="active" data-i18n="nav-booking">Booking</a>
-      <a href="index.html#pricing" data-i18n="nav-pricing">Pricing</a>
-    </div>
-    <div class="nav-right">
-      <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()">TH</button>
-      <div class="nav-user-text">
-        <div class="nav-user-label" data-i18n="nav-welcome">Welcome</div>
-        <div class="nav-user-name" id="user-name">Guest</div>
-      </div>
-      <div class="nav-avatar">
-        <img id="user-avatar" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover;">
-        <span class="material-symbols-outlined" id="user-avatar-fallback"
-          style="font-size:18px; color:var(--ink-3); margin:auto;">person</span>
-      </div>
-    </div>
-  </nav>
-
-  <div class="page-wrap">
-
-    <!-- Header -->
-    <div class="anim-1">
-      <div
-        style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-3); margin-bottom:4px;"
-        data-i18n="appt-title">Appointment</div>
-      <div
-        style="font-family:'Lora',serif; font-size:1.7rem; font-weight:600; letter-spacing:-0.02em; color:var(--ink); line-height:1.1;"
-        data-i18n="appt-subtitle">Pick a Date</div>
-      <div style="font-size:12px; color:var(--ink-3); margin-top:4px;" data-i18n="appt-desc">Tap a date on the calendar
-        to book instantly</div>
-    </div>
-
-    <!-- Calendar Card -->
-    <div class="card anim-2" style="padding: 16px;">
-
-      <!-- Month navigation -->
-      <div class="cal-nav-row">
-        <button class="cal-nav-btn" id="prev-month" aria-label="เดือนก่อน">
-          <span class="material-symbols-outlined" style="font-size:16px;">chevron_left</span>
-        </button>
-        <div class="cal-month-header" id="cal-month-label"
-          style="margin:0; font-size:14px; font-weight:700; color:var(--ink);">กุมภาพันธ์ 2568</div>
-        <button class="cal-nav-btn" id="next-month" aria-label="เดือนถัดไป">
-          <span class="material-symbols-outlined" style="font-size:16px;">chevron_right</span>
-        </button>
-      </div>
-
-      <!-- Weekday labels -->
-      <div class="cal-weekrow">
-        <div class="cal-wd sun" data-i18n="wd-sun">อา</div>
-        <div class="cal-wd" data-i18n="wd-mon">จ</div>
-        <div class="cal-wd" data-i18n="wd-tue">อ</div>
-        <div class="cal-wd" data-i18n="wd-wed">พ</div>
-        <div class="cal-wd" data-i18n="wd-thu">พฤ</div>
-        <div class="cal-wd" data-i18n="wd-fri">ศ</div>
-        <div class="cal-wd sat" data-i18n="wd-sat">ส</div>
-      </div>
-
-      <!-- Calendar days (JS) -->
-      <div class="cal-grid" id="cal-grid"></div>
-
-    </div>
-
-    <div style="margin: 16px 20px 4px; font-size:15px; color:var(--ink-3); text-align:center; line-height:1.4;"
-      data-i18n="contact-admin-notice">
-      เมื่อยืนยันการจองแล้ว หากต้องการยกเลิกหรือแก้ไขข้อมูลใดๆ จะต้องติดต่อแอดมินผ่าน line oa
-    </div>
-    <button type="button"
-      style="background:none; border:none; color:var(--ink-3); font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:4px; margin: 0 auto; padding:4px 8px; cursor:pointer;"
-      onclick="contactAdmin()">
-      <span class="material-symbols-outlined" style="font-size:17px;">chat</span>
-      <span style="text-decoration:underline;" data-i18n="contact-admin-btn">ติดต่อแอดมิน</span>
-    </button>
-
-  </div>
-
-  <!-- Modal -->
-  <div class="modal-bg" id="modal" role="dialog" aria-modal="true">
-    <div class="modal-sheet">
-      <div class="modal-handle">
-        <div class="modal-handle-bar"></div>
-      </div>
-      <div class="modal-body">
-
-        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px;">
-          <h2 id="modal-date-title"
-            style="font-family:'Lora',serif; font-size:1.2rem; color:var(--ink); margin-bottom:0;">Book — Date</h2>
-          <button type="button" id="close-modal" style="background:none; border:none; cursor:pointer; padding:4px;">
-            <span class="material-symbols-outlined" style="font-size:20px; color:var(--ink-3);">close</span>
-          </button>
-        </div>
-
-        <form id="booking-form" novalidate>
-
-          <!-- Service selection -->
-          <div class="premium-card">
-            <div class="form-label" data-i18n="form-service" style="margin-bottom:12px;">Select Service</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-
-              <input type="radio" name="service" id="svc1" value="fitting" class="svc-radio" checked>
-              <label for="svc1" class="svc-label">
-                <div class="svc-icon"><span class="material-symbols-outlined" style="font-size:16px;">straighten</span>
-                </div>
-                <div>
-                  <div class="svc-name" data-i18n="svc-1-name">Fitting Appointment</div>
-                  <div class="svc-desc" data-i18n="svc-1-desc">60 min · Measurements & adjustments</div>
-                </div>
-              </label>
-
-              <input type="radio" name="service" id="svc2" value="consultation" class="svc-radio">
-              <label for="svc2" class="svc-label">
-                <div class="svc-icon"><span class="material-symbols-outlined"
-                    style="font-size:16px;">design_services</span></div>
-                <div>
-                  <div class="svc-name" data-i18n="svc-2-name">Design Consultation</div>
-                  <div class="svc-desc" data-i18n="svc-2-desc">45 min · Fabric & pattern selection</div>
-                </div>
-              </label>
-
-            </div>
-          </div>
-
-          <!-- Number of People selection -->
-          <div class="premium-card" style="display:flex; flex-direction:column; align-items:center;">
-            <div class="form-label" style="text-align:center; margin-bottom:12px;">
-              <span data-i18n="form-people">Number of People</span>
-            </div>
-
-            <div class="stepper-wrap">
-              <button type="button" class="stepper-btn" onclick="updateStepper(-1)">
-                <span class="material-symbols-outlined">remove</span>
-              </button>
-              <div class="stepper-val" id="num-people-val">1</div>
-              <button type="button" class="stepper-btn" onclick="updateStepper(1)">
-                <span class="material-symbols-outlined">add</span>
-              </button>
-            </div>
-            <input type="hidden" id="num-people" value="1">
-          </div>
-
-          <div id="booking-details-container">
-            <!-- Time slots -->
-            <div class="premium-card">
-              <div class="form-label" data-i18n="form-time" style="margin-bottom:12px;">Select Time Slot</div>
-              <div id="time-slots-container" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:7px;"></div>
-            </div>
-
-            <!-- Personal info -->
-            <div class="premium-card" style="display:flex; flex-direction:column; gap:8px;">
-              <div class="form-label" data-i18n="form-details" style="margin-bottom:4px;">Your Details</div>
-
-              <div id="names-container" style="display:flex; flex-direction:column; gap:8px;">
-                <div class="input-wrap">
-                  <span class="material-symbols-outlined input-icon" style="font-size:16px;">person</span>
-                  <input class="form-input name-input" type="text" placeholder="Full name (Person 1)"
-                    data-i18n-dynamic="form-name-1" autocomplete="name" required>
-                </div>
-              </div>
-
-              <div class="input-wrap">
-                <span class="material-symbols-outlined input-icon" style="font-size:16px;">call</span>
-                <input class="form-input" type="tel" id="phone" placeholder="Phone number" autocomplete="tel"
-                  data-i18n="form-phone" required>
-              </div>
-            </div>
-
-            <button type="submit" class="submit-btn" id="submit-btn" style="margin-top:8px;">
-              <span class="material-symbols-outlined"
-                style="font-size:16px; font-variation-settings:'FILL' 1;">check_circle</span>
-              <span data-i18n="btn-confirm">Confirm Booking</span>
-            </button>
-          </div>
-
-          <!-- Contact Admin Message (Hidden by default) -->
-          <div id="contact-admin-msg" style="display:none; text-align:center; margin-top:24px;">
-            <div style="font-size:14px; color:var(--ink-2); margin-bottom:12px;" data-i18n="people-contact-admin">
-              For more than 7 people, please contact the admin directly.
-            </div>
-            <button type="button" class="submit-btn"
-              style="width:auto; padding:8px 16px; font-size:14px; display:inline-flex; margin:0 auto;"
-              onclick="contactAdmin()">
-              <span class="material-symbols-outlined" style="font-size:18px;">chat</span>
-              <span data-i18n="contact-admin-btn">Contact Admin</span>
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Contact Modal -->
-  <div id="contact-modal" class="modal-center-overlay">
-    <div class="modal-center-content" style="text-align:center;">
-      <button class="modal-close" id="close-contact-modal" style="position:absolute; top:12px; right:12px;"><span class="material-symbols-outlined">close</span></button>
-      <div style="font-size:16px; font-weight:700; margin-bottom:16px; margin-top:8px; color:var(--ink);" data-i18n="contact-popup-title">Send Message?</div>
-      <div style="font-size:14px; color:var(--ink-2); margin-bottom:24px;" id="contact-popup-msg"></div>
-      <button class="submit-btn" onclick="confirmContactAdmin()" style="width:100%;">
-        <span class="material-symbols-outlined" style="font-size:18px;">send</span>
-        <span data-i18n="btn-ok">OK</span>
-      </button>
-    </div>
-  </div>
-
-  <nav class="bottom-nav">
-    <a href="index.html" class="bnav-item">
-      <span class="material-symbols-outlined bnav-icon">home</span>
-      <span data-i18n="bnav-home">Home</span>
-    </a>
-    <a href="booking.html" class="bnav-center">
-      <span class="material-symbols-outlined"
-        style="font-size:22px; font-variation-settings:'FILL' 1;">event_upcoming</span>
-    </a>
-    <a href="profile.html" class="bnav-item" id="nav-dynamic-item">
-      <span class="material-symbols-outlined bnav-icon" id="nav-dynamic-icon" style="font-variation-settings:'FILL' 1;">person</span>
-      <span id="nav-dynamic-text" data-i18n="bnav-profile">Profile</span>
-    </a>
-  </nav>
-
-  <script>
-    if (localStorage.getItem('isAdmin') === 'true') {
-      const dl = document.getElementById('nav-dynamic-item');
-      if (dl) dl.href = 'admin.html';
-      const di = document.getElementById('nav-dynamic-icon');
-      if (di) { di.textContent = 'calendar_month'; di.style.fontVariationSettings = ''; }
-      const dt = document.getElementById('nav-dynamic-text');
-      if (dt) dt.setAttribute('data-i18n', 'bnav-schedule');
-    }
-  </script>
-
-  <script>
     // ── LIFF Profile ──
     const LIFF_ID = '2010947166-BLk9wNiz';
     (async () => {
@@ -362,6 +16,13 @@
             document.getElementById('user-avatar-fallback').style.display = 'none';
             const token = liff.getAccessToken();
             
+            // Print debug info
+            const debugEl = document.getElementById('liff-debug');
+            if (debugEl) {
+              debugEl.textContent = `InClient: ${liff.isInClient()}, LoggedIn: ${liff.isLoggedIn()}, Token: ${token ? token.slice(0, 15) : 'none'}..., HasDots: ${token ? token.includes('.') : false}`;
+              debugEl.style.display = 'block';
+            }
+
             if (token) {
               await fetch(`${window.API_BASE_URL}/v1/auth/line/verify`, {
                 method: 'POST',
@@ -381,12 +42,10 @@
                 const dynamicIcon = document.getElementById('nav-dynamic-icon');
                 const dynamicText = document.getElementById('nav-dynamic-text');
                 if (res.ok) {
-                  localStorage.setItem('isAdmin', 'true');
                   if (dynamicLink) dynamicLink.href = 'admin.html';
-                  if (dynamicIcon) { dynamicIcon.textContent = 'calendar_month'; dynamicIcon.style.fontVariationSettings = ''; }
+                  if (dynamicIcon) dynamicIcon.textContent = 'calendar_month';
                   if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-schedule');
                 } else {
-                  localStorage.removeItem('isAdmin');
                   if (dynamicLink) dynamicLink.href = 'profile.html';
                   if (dynamicIcon) {
                     dynamicIcon.textContent = 'person';
@@ -407,20 +66,17 @@
               });
             }
           } else {
+            const debugEl = document.getElementById('liff-debug');
+            if (debugEl) {
+              debugEl.textContent = `Not logged in. Redirecting...`;
+              debugEl.style.display = 'block';
+            }
             liff.login();
           }
         }
       } catch (e) {
         console.error('LIFF Error:', e);
-        if (e.message && (e.message.includes('revoked') || e.message.includes('expired'))) {
-          liff.logout();
-          window.location.reload();
-        } else {
-          alert('LIFF Error: ' + e.message);
-        }
-      } finally {
-        const loader = document.getElementById('global-loader');
-        if (loader) loader.classList.add('hidden');
+        alert('LIFF Error: ' + e.message);
       }
     })();
 
@@ -554,40 +210,17 @@
     window.contactAdmin = async function contactAdmin() {
       const lang = localStorage.getItem('lang') || 'th';
       const msg = lang === 'th' ? 'ติดต่อแอดมิน เพื่อจองคิว/แก้ไขการจอง' : 'Contact admin to edit/book';
-      const modal = document.getElementById('contact-modal');
-      document.getElementById('contact-popup-msg').textContent = msg;
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-      
-      window.confirmContactAdmin = async function() {
-        modal.classList.remove('open');
-        document.body.style.overflow = '';
-        
-        if (!liff.isInClient()) {
-          alert('คุณกำลังเปิดผ่านเบราว์เซอร์ปกติ ระบบจะไม่สามารถส่งข้อความอัตโนมัติเข้าแชท LINE ได้ครับ (สำหรับการทดสอบ รบกวนเปิดผ่านห้องแชทในแอป LINE โดยตรงนะครับ)');
-          return;
-        }
-        try {
-          await liff.sendMessages([{ type: 'text', text: msg }]);
-          liff.closeWindow();
-        } catch (err) {
-          console.error('Error sending message:', err);
-          alert('ไม่สามารถส่งข้อความได้ (Error: ' + err.message + ')\n\nระบบนี้ใช้งานได้เฉพาะเมื่อเปิด LIFF ผ่านหน้าต่างแชทเท่านั้น หรืออาจยังไม่ได้เปิดสิทธิ์ chat_message.write');
-        }
-      };
-    }
-    
-    document.getElementById('close-contact-modal').addEventListener('click', () => {
-      document.getElementById('contact-modal').classList.remove('open');
-      document.body.style.overflow = '';
-    });
-    
-    document.getElementById('contact-modal').addEventListener('click', e => {
-      if (e.target === document.getElementById('contact-modal')) {
-        document.getElementById('contact-modal').classList.remove('open');
-        document.body.style.overflow = '';
+      if (!liff.isInClient()) {
+        alert(msg);
+        return;
       }
-    });
+      try {
+        await liff.sendMessages([{ type: 'text', text: msg }]);
+        liff.closeWindow();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
 
     document.getElementById('close-modal').addEventListener('click', closeModal);
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
@@ -820,7 +453,4 @@
     // Run on initial load to set correct UI state
     handlePeopleChange();
     renderCal();
-  </script>
-</body>
-
-</html>
+  

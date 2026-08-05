@@ -163,10 +163,13 @@
     </style>
 </head>
 <body>
-
+    <div id="global-loader" class="global-loader">
+        <div class="spinner"></div>
+        <div class="loader-text" data-i18n="loading">Loading...</div>
+    </div>
     <!-- Navbar -->
     <div class="top-fade"></div>
-    <a href="index.html" class="floating-logo">BaanChangSom</a>
+    <a href="index.html" class="floating-logo">B.</a>
     <nav class="navbar">
         <div class="nav-links">
             <a href="booking.html" data-i18n="nav-booking">Booking</a>
@@ -235,6 +238,17 @@
         </a>
     </nav>
 
+    <script>
+        if (localStorage.getItem('isAdmin') === 'true') {
+            const dl = document.getElementById('nav-dynamic-item');
+            if (dl) dl.href = 'admin.html';
+            const di = document.getElementById('nav-dynamic-icon');
+            if (di) { di.textContent = 'calendar_month'; di.style.fontVariationSettings = ''; }
+            const dt = document.getElementById('nav-dynamic-text');
+            if (dt) dt.setAttribute('data-i18n', 'bnav-schedule');
+        }
+    </script>
+
     <script src="config.js"></script>
     <script src="lang.js"></script>
     <script>
@@ -274,10 +288,11 @@
                         }).catch(err => console.error('Verify failed:', err));
 
                         // Check admin status to update navbar
+                        const adminIdToken = liff.getAccessToken();
                         fetch(`${window.API_BASE_URL}/v1/admin/auth/line`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ idToken: token })
+                            body: JSON.stringify({ idToken: adminIdToken })
                         })
                         .then(res => {
                             const dynamicLink = document.getElementById('nav-dynamic-item');
@@ -288,12 +303,12 @@
                                     dynamicLink.href = 'admin.html';
                                     dynamicLink.classList.remove('active');
                                 }
-                                if (dynamicIcon) {
-                                    dynamicIcon.textContent = 'calendar_month';
-                                    dynamicIcon.style.fontVariationSettings = '';
-                                }
+                                localStorage.setItem('isAdmin', 'true');
+                                if (dynamicLink) dynamicLink.href = 'admin.html';
+                                if (dynamicIcon) { dynamicIcon.textContent = 'calendar_month'; dynamicIcon.style.fontVariationSettings = ''; }
                                 if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-schedule');
                             } else {
+                                localStorage.removeItem('isAdmin');
                                 if (dynamicLink) {
                                     dynamicLink.href = 'profile.html';
                                     dynamicLink.classList.add('active');
@@ -323,9 +338,24 @@
                 }
             } catch(e) {
                 console.error(e);
+                if (e.message && (e.message.includes('revoked') || e.message.includes('expired'))) {
+                    liff.logout();
+                    window.location.reload();
+                } else {
+                    alert('LIFF Error: ' + e.message);
+                }
+            } finally {
+                const loader = document.getElementById('global-loader');
+                if (loader) loader.classList.add('hidden');
             }
         }
         initLiff();
+        
+        window.renderAppointments = function() {
+            if (typeof renderAppointmentsList === 'function') {
+                renderAppointmentsList(appointmentsData);
+            }
+        };
 
         function renderAppointmentsList(appointments) {
             const upcomingContainer = document.getElementById('upcoming');
@@ -363,6 +393,14 @@
                     
                     const serviceName = appt.type === 'FITTING' ? (lang === 'en' ? 'Fitting Appointment' : 'วัดตัวตัดชุด') : (lang === 'en' ? 'Design Consultation' : 'ปรึกษาการออกแบบ');
                     
+                    let notesText = appt.notes || '';
+                    if (lang === 'en') {
+                        notesText = notesText.replace(/บริการ:/g, 'Service:');
+                        notesText = notesText.replace(/ผู้จอง:/g, 'Name:');
+                        notesText = notesText.replace(/เบอร์โทร:/g, 'Phone:');
+                        notesText = notesText.replace(/คนที่ (\d+):/g, 'Person $1:');
+                    }
+                    
                     card.innerHTML = `
                         <div class="cust-card-top">
                             <div>
@@ -383,10 +421,10 @@
                                 <span class="material-symbols-outlined" style="font-size:16px;">group</span>
                                 <span>${appt.partySize} ${lang === 'en' ? 'People' : 'ท่าน'}</span>
                             </div>
-                            ${appt.notes ? `
+                            ${notesText ? `
                             <div class="cust-row" style="grid-column: span 2; margin-top:4px;">
                                 <span class="material-symbols-outlined" style="font-size:16px;">notes</span>
-                                <span style="font-size:11px; white-space: pre-wrap;">${appt.notes}</span>
+                                <span style="font-size:11px; white-space: pre-wrap;">${notesText}</span>
                             </div>` : ''}
                             <div class="cust-row" style="grid-column: span 2; margin-top:8px;">
                                 <span class="material-symbols-outlined" style="font-size:16px; color:#cc3333;">info</span>
@@ -425,6 +463,14 @@
                     if (appt.status === 'CANCELLED') statusText = lang === 'en' ? 'Cancelled' : 'ยกเลิกแล้ว';
                     if (appt.status === 'NO_SHOW') statusText = lang === 'en' ? 'No Show' : 'ไม่มาแสดงตัว';
                     
+                    let notesText = appt.notes || '';
+                    if (lang === 'en') {
+                        notesText = notesText.replace(/บริการ:/g, 'Service:');
+                        notesText = notesText.replace(/ผู้จอง:/g, 'Name:');
+                        notesText = notesText.replace(/เบอร์โทร:/g, 'Phone:');
+                        notesText = notesText.replace(/คนที่ (\d+):/g, 'Person $1:');
+                    }
+                    
                     card.innerHTML = `
                         <div class="cust-card-top">
                             <div>
@@ -445,6 +491,11 @@
                                 <span class="material-symbols-outlined" style="font-size:16px;">group</span>
                                 <span>${appt.partySize} ${lang === 'en' ? 'People' : 'ท่าน'}</span>
                             </div>
+                            ${notesText ? `
+                            <div class="cust-row" style="grid-column: span 2; margin-top:4px;">
+                                <span class="material-symbols-outlined" style="font-size:16px;">notes</span>
+                                <span style="font-size:11px; white-space: pre-wrap;">${notesText}</span>
+                            </div>` : ''}
                         </div>
                     `;
                     historyContainer.appendChild(card);

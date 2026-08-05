@@ -61,6 +61,15 @@
             color: var(--ink-3);
             font-weight: 600;
         }
+        
+        .premium-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
 
         /* Appointment card */
         .appt-card {
@@ -499,9 +508,10 @@
             display: flex;
             overflow-x: auto;
             gap: 12px;
-            padding: 10px 20px;
-            margin: 0 -20px 20px -20px;
+            padding: 10px 16px 20px 0;
+            margin: 0;
             scrollbar-width: none;
+            position: relative;
             /* Firefox */
         }
 
@@ -559,6 +569,7 @@
             transition: all 0.2s;
             flex-shrink: 0;
             color: var(--ink);
+            scroll-snap-align: center;
         }
 
         .date-pill.faded {
@@ -603,7 +614,12 @@
         .date-pill.active .date-pill-count {
             color: rgba(255, 255, 255, 0.6);
         }
-
+        
+        .date-pill.today {
+            transform: scale(1.15);
+            margin: 0 6px;
+            border: 2px solid #1f2336;
+        }
 
         .view-panel.active {
             display: flex;
@@ -612,8 +628,12 @@
 </head>
 
 <body>
+    <div id="global-loader" class="global-loader">
+        <div class="spinner"></div>
+        <div class="loader-text" data-i18n="loading">Loading...</div>
+    </div>
     <div class="top-fade"></div>
-    <a href="index.html" class="floating-logo">BaanChangSom</a>
+    <a href="index.html" class="floating-logo">B.</a>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-links">
@@ -623,8 +643,8 @@
         <div class="nav-right">
             <button id="lang-toggle-btn" class="lang-btn" onclick="toggleLang()">TH</button>
             <div class="nav-user-text">
-                <div class="nav-user-label" data-i18n="nav-admin">Admin</div>
-                <div class="nav-user-name" id="user-name">Guest</div>
+                <div class="nav-user-label" data-i18n="nav-welcome">Welcome</div>
+                <div class="nav-user-name" id="user-name">Admin</div>
             </div>
             <div class="nav-avatar">
                 <img id="user-avatar" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover;">
@@ -650,22 +670,22 @@
         <div class="search-wrap anim-2">
             <span class="material-symbols-outlined search-icon">search</span>
             <input type="search" class="search-bar" placeholder="Search client name or service…"
-                data-i18n="admin-search">
+                data-i18n="admin-search" oninput="onSearchInput(event)">
         </div>
 
         <!-- Stats -->
         <div class="stats-row anim-3">
             <div class="stat-card">
-                <div class="stat-num">3</div>
+                <div class="stat-num" id="stat-today">-</div>
                 <div class="stat-label" data-i18n="admin-stat-today">Today</div>
             </div>
             <div class="stat-card">
-                <div class="stat-num" style="color:#2a7d4f;">1</div>
+                <div class="stat-num" style="color:#2a7d4f;" id="stat-done">-</div>
                 <div class="stat-label" data-i18n="admin-stat-done">Done</div>
             </div>
             <div class="stat-card">
-                <div class="stat-num" style="color:#cc6600;">2</div>
-                <div class="stat-label" data-i18n="admin-stat-pending">Pending</div>
+                <div class="stat-num" style="color:#cc6600;" id="stat-pending">-</div>
+                <div class="stat-label" data-i18n="admin-stat-pending">Service Queue</div>
             </div>
         </div>
 
@@ -681,8 +701,11 @@
         </div>
 
         <!-- Date Picker -->
-        <div class="date-picker-scroll anim-3" id="date-picker">
-            <!-- Will be populated by JS -->
+        <div class="date-picker-row anim-3" style="display: flex; align-items: stretch; margin-left: -16px; margin-right: -16px;">
+            <div id="all-btn-container" style="padding: 10px 12px 20px 16px; position: relative; z-index: 10;"></div>
+            <div class="date-picker-scroll" id="date-picker" style="flex: 1; margin: 0;">
+                <!-- Will be populated by JS -->
+            </div>
         </div>
 
         <!-- ══ TODAY VIEW ══ -->
@@ -737,57 +760,57 @@
             <!-- Big numbers -->
             <div class="summary-grid">
                 <div class="summary-card">
-                    <div class="summary-big">24</div>
-                    <div class="summary-label">Total Appts</div>
-                    <div class="summary-sub">↑ 3 vs last month</div>
+                    <div class="summary-big" id="sum-total">-</div>
+                    <div class="summary-label" data-i18n="admin-sum-total">Total Appts</div>
+                    <div class="summary-sub" id="sum-total-sub"> </div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-big" style="color:#2a7d4f;">22</div>
-                    <div class="summary-label">Completed</div>
-                    <div class="summary-sub">91.7% completion</div>
+                    <div class="summary-big" style="color:#2a7d4f;" id="sum-completed">-</div>
+                    <div class="summary-label" data-i18n="admin-sum-completed">Completed</div>
+                    <div class="summary-sub" id="sum-completed-sub"> </div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-big" style="color:#cc6600;">2</div>
-                    <div class="summary-label">Cancelled</div>
-                    <div class="summary-sub">8.3% rate</div>
+                    <div class="summary-big" style="color:#cc6600;" id="sum-cancelled">-</div>
+                    <div class="summary-label" data-i18n="admin-sum-cancelled">Cancelled</div>
+                    <div class="summary-sub" id="sum-cancelled-sub"> </div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-big">18</div>
-                    <div class="summary-label">Clients</div>
-                    <div class="summary-sub">6 returning</div>
+                    <div class="summary-big" id="sum-confirmed">-</div>
+                    <div class="summary-label" data-i18n="admin-sum-confirmed">Confirmed</div>
+                    <div class="summary-sub" id="sum-confirmed-sub"> </div>
                 </div>
             </div>
 
             <!-- Weekly breakdown bar chart -->
             <div class="month-bar-wrap">
-                <div class="month-bar-title">Appointments by Week</div>
-                <div class="bar-row">
-                    <div class="bar-label">Week 1</div>
+                <div class="month-bar-title" id="sum-week-title">Appointments by Week</div>
+                <div class="bar-row" id="sum-week1-row">
+                    <div class="bar-label" id="sum-week1-label">Week 1</div>
                     <div class="bar-track">
-                        <div class="bar-fill" style="width:75%"></div>
+                        <div class="bar-fill" id="sum-week1-fill" style="width:0%"></div>
                     </div>
-                    <div class="bar-val">6</div>
+                    <div class="bar-val" id="sum-week1-val">0</div>
                 </div>
-                <div class="bar-row">
-                    <div class="bar-label">Week 2</div>
+                <div class="bar-row" id="sum-week2-row">
+                    <div class="bar-label" id="sum-week2-label">Week 2</div>
                     <div class="bar-track">
-                        <div class="bar-fill" style="width:87%"></div>
+                        <div class="bar-fill" id="sum-week2-fill" style="width:0%"></div>
                     </div>
-                    <div class="bar-val">7</div>
+                    <div class="bar-val" id="sum-week2-val">0</div>
                 </div>
-                <div class="bar-row">
-                    <div class="bar-label">Week 3</div>
+                <div class="bar-row" id="sum-week3-row">
+                    <div class="bar-label" id="sum-week3-label">Week 3</div>
                     <div class="bar-track">
-                        <div class="bar-fill green" style="width:50%"></div>
+                        <div class="bar-fill green" id="sum-week3-fill" style="width:0%"></div>
                     </div>
-                    <div class="bar-val">4</div>
+                    <div class="bar-val" id="sum-week3-val">0</div>
                 </div>
-                <div class="bar-row">
-                    <div class="bar-label">Week 4</div>
+                <div class="bar-row" id="sum-week4-row">
+                    <div class="bar-label" id="sum-week4-label">Week 4</div>
                     <div class="bar-track">
-                        <div class="bar-fill gold" style="width:87%"></div>
+                        <div class="bar-fill gold" id="sum-week4-fill" style="width:0%"></div>
                     </div>
-                    <div class="bar-val">7</div>
+                    <div class="bar-val" id="sum-week4-val">0</div>
                 </div>
             </div>
 
@@ -819,9 +842,9 @@
 
                     <!-- Date Selection -->
                     <div class="premium-card">
-                        <div class="form-label" data-i18n="form-date" style="margin-bottom:12px;">Date</div>
-                        <input type="date" id="edit-date" class="form-input"
-                            style="max-width: 100%; box-sizing: border-box; padding: 0 14px;" required>
+                        <div class="form-label" data-i18n="form-date" style="margin-bottom:8px; font-weight:700; font-size:12px; color:var(--ink-2);">Date</div>
+                        <input type="date" id="edit-date" 
+                            style="width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; padding: 12px 14px; margin: 0; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-family: inherit; font-size: 14px; background: #fff; color: var(--ink); display: block; -webkit-appearance: none; appearance: none;" required>
                     </div>
 
                     <!-- Service selection -->
@@ -931,20 +954,29 @@
         // ── LIFF Profile ──
         const LIFF_ID = '2010947166-BLk9wNiz';
         let allAppointments = [];
+        
+        // Fast pre-fetch if token exists
+        if (localStorage.getItem('adminToken')) {
+            fetchAdminAppointments();
+        }
 
         async function loadProfile() {
             try {
                 if (LIFF_ID) {
                     await liff.init({ liffId: LIFF_ID });
                     if (liff.isLoggedIn()) {
-                        const profile = await liff.getProfile();
-                        document.getElementById('user-name').textContent = profile.displayName;
-                        const img = document.getElementById('user-avatar');
-                        img.src = profile.pictureUrl;
-                        img.style.display = 'block';
-                        document.getElementById('user-avatar-fallback').style.display = 'none';
-
                         // Authenticate as Admin
+                        const profile = await liff.getProfile();
+                        const userNameEl = document.getElementById('user-name');
+                        if (userNameEl) userNameEl.textContent = profile.displayName;
+                        const userAvatar = document.getElementById('user-avatar');
+                        if (userAvatar && profile.pictureUrl) {
+                            userAvatar.src = profile.pictureUrl;
+                            userAvatar.style.display = 'block';
+                            const fallback = document.getElementById('user-avatar-fallback');
+                            if (fallback) fallback.style.display = 'none';
+                        }
+                        
                         const token = liff.getAccessToken();
                         if (token) {
                             const authRes = await fetch(`${window.API_BASE_URL}/v1/admin/auth/line`, {
@@ -958,7 +990,7 @@
                                 localStorage.setItem('adminToken', adminToken);
 
                                 // Fetch all appointments
-                                await fetchAdminAppointments();
+                                fetchAdminAppointments();
                             } else {
                                 const errData = await authRes.json().catch(() => ({}));
                                 alert('Admin access denied: ' + (errData.error?.message || errData.message || 'Not an admin user'));
@@ -970,7 +1002,15 @@
                 }
             } catch (e) {
                 console.error('LIFF Error:', e);
-                alert('LIFF Error: ' + e.message);
+                if (e.message && (e.message.includes('revoked') || e.message.includes('expired'))) {
+                    liff.logout();
+                    window.location.reload();
+                } else {
+                    alert('LIFF Error: ' + e.message);
+                }
+            } finally {
+                const loader = document.getElementById('global-loader');
+                if (loader) loader.classList.add('hidden');
             }
         }
         loadProfile();
@@ -979,6 +1019,18 @@
             const adminToken = localStorage.getItem('adminToken');
             if (!adminToken) return;
 
+            const todayView = document.getElementById('today-view');
+            let localLoader = null;
+            if (todayView) {
+                // Clear any existing appointments before showing loader
+                document.querySelectorAll('.appt-card').forEach(el => el.remove());
+                localLoader = document.createElement('div');
+                localLoader.id = 'local-loader';
+                localLoader.style = 'text-align:center; padding:40px; color:var(--ink-3); font-size:14px;';
+                localLoader.innerHTML = '<div class="spinner" style="margin: 0 auto 10px auto; width: 30px; height: 30px;"></div><div data-i18n="loading">Loading...</div>';
+                todayView.appendChild(localLoader);
+            }
+
             try {
                 const res = await fetch(`${window.API_BASE_URL}/v1/admin/appointments`, {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -986,10 +1038,13 @@
                 if (res.ok) {
                     const resData = await res.json();
                     allAppointments = resData.data?.appointments || [];
+                    if (localLoader) localLoader.remove();
                     renderAdminAppointments();
+                    renderMonthlySummary();
                 }
             } catch (e) {
                 console.error('Failed to fetch appointments:', e);
+                if (localLoader) localLoader.remove();
             }
         }
 
@@ -1020,9 +1075,12 @@
                     : `${dateObj.getDate()} ${['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'][dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
 
                 // Parse specific guest details if saved in notes format, otherwise fallback to user record
-                let name = appt.user?.legalName || appt.user?.displayName || 'Customer';
+                let name = appt.user?.displayName || appt.user?.legalName || 'Customer';
                 let phone = appt.user?.phone || '-';
                 let notesText = appt.notes || '';
+                if (lang === 'en') {
+                    notesText = notesText.replace(/คนที่ (\d+):/g, 'Person $1:');
+                }
                 let serviceType = appt.type;
 
                 if (notesText.includes('ผู้จอง: ')) {
@@ -1035,7 +1093,10 @@
                         if (svcVal === 'fitting') serviceType = 'FITTING';
                         else if (svcVal === 'consultation') serviceType = 'BOOKING';
                     }
-                    if (nameLine) name = nameLine.replace(/.*ผู้จอง:\s*/, '').trim();
+                    if (nameLine) {
+                        const parsedName = nameLine.replace(/.*ผู้จอง:\s*/, '').trim();
+                        if (!appt.user?.displayName) name = parsedName;
+                    }
                     if (phoneLine) phone = phoneLine.replace(/.*เบอร์โทร:\s*/, '').trim();
                     notesText = lines.filter(l => !l.includes('บริการ: ') && !l.includes('ผู้จอง: ') && !l.includes('เบอร์โทร: ')).join('\n');
                 }
@@ -1096,15 +1157,15 @@
                             <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span>
                             <span>${lang === 'en' ? 'Done' : 'เสร็จสิ้น'}</span>
                         </button>
-                        ` : ''}
                         <button class="action-btn text-error" onclick="cancelBookingClick('${appt.id}')">
                             <span class="material-symbols-outlined" style="font-size:16px;">cancel</span>
                             <span data-i18n="btn-cancel">${lang === 'en' ? 'Cancel' : 'ยกเลิก'}</span>
                         </button>
-                        <button class="action-btn" onclick="openEditModal('${appt.id}', '${name.replace(/'/g, "\\'")}', '${phone}', ${appt.partySize}, '${appt.date}', '${appt.startTime}', '${appt.type.toLowerCase()}')">
+                        <button class="action-btn" onclick="openEditModal('${appt.id}', '${name.replace(/'/g, "\\'")}', '${phone}', ${appt.partySize}, '${appt.date}', '${appt.startTime}', '${serviceType === 'FITTING' ? 'fitting' : 'consultation'}')">
                             <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
                             <span data-i18n="btn-edit">${lang === 'en' ? 'Edit' : 'แก้ไข'}</span>
                         </button>
+                        ` : ''}
                     </div>
                 `;
                 todayView.appendChild(card);
@@ -1204,6 +1265,7 @@
             const statsRow = document.querySelector('.stats-row');
             const monthNav = document.querySelector('.month-nav');
             const datePicker = document.getElementById('date-picker');
+            const allBtnContainer = document.getElementById('all-btn-container');
             const greeting = document.querySelector('.page-wrap > .anim-1');
 
             if (todayView.classList.contains('active')) {
@@ -1214,6 +1276,7 @@
                 if (searchWrap) searchWrap.style.display = 'none';
                 if (statsRow) statsRow.style.display = 'none';
                 if (datePicker) datePicker.style.display = 'none';
+                if (allBtnContainer) allBtnContainer.style.display = 'none';
                 if (monthNav) monthNav.style.display = 'none';
                 if (greeting) greeting.style.display = 'none';
 
@@ -1228,6 +1291,7 @@
                 if (searchWrap) searchWrap.style.display = '';
                 if (statsRow) statsRow.style.display = '';
                 if (datePicker) datePicker.style.display = '';
+                if (allBtnContainer) allBtnContainer.style.display = '';
                 if (monthNav) monthNav.style.display = '';
                 if (greeting) greeting.style.display = '';
 
@@ -1240,17 +1304,35 @@
         // --- Filter State ---
         let activeDateFilter = 'ALL';
         let activeStatusFilter = 'all';
+        let activeSearchQuery = '';
+
+        window.onSearchInput = function(e) {
+            activeSearchQuery = e.target.value.toLowerCase().trim();
+            applyFilters();
+        };
 
         function applyFilters() {
             const cards = document.querySelectorAll('.appt-card');
             let visibleCount = 0;
+
+            // When 'ALL' is selected, show only the current picker month
+            const monthPrefix = `${currentPickerYear}-${String(currentPickerMonth + 1).padStart(2, '0')}`;
+
             cards.forEach(card => {
                 const cardDate = card.getAttribute('data-date');
                 const cardStatus = card.dataset.status;
-                const dateMatch = (activeDateFilter === 'ALL' || cardDate === activeDateFilter);
+                const dateMatch = activeDateFilter === 'ALL'
+                    ? (cardDate && cardDate.startsWith(monthPrefix))
+                    : cardDate === activeDateFilter;
                 const statusMatch = (activeStatusFilter === 'all' || cardStatus === activeStatusFilter);
+                
+                let matchesSearch = true;
+                if (activeSearchQuery) {
+                    const text = card.textContent.toLowerCase();
+                    matchesSearch = text.includes(activeSearchQuery);
+                }
 
-                if (dateMatch && statusMatch) {
+                if (dateMatch && statusMatch && matchesSearch) {
                     card.style.display = '';
                     visibleCount++;
                 } else {
@@ -1261,6 +1343,29 @@
             if (emptyState) {
                 emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
             }
+
+            // Update today stats from real data
+            updateTodayStats();
+        }
+
+        function updateTodayStats() {
+            // Use Bangkok timezone (UTC+7) for today's date to match backend data
+            const now = new Date();
+            const bangkokOffset = 7 * 60; // UTC+7 in minutes
+            const localMs = now.getTime() + (bangkokOffset - now.getTimezoneOffset()) * 60000;
+            const todayStr = new Date(localMs).toISOString().split('T')[0];
+
+            const todayAppts = allAppointments.filter(a => a.date === todayStr);
+            const todayTotal = todayAppts.length;
+            const todayDone = todayAppts.filter(a => a.status === 'COMPLETED').length;
+            const todayConfirmed = todayAppts.filter(a => a.status === 'CONFIRMED').length;
+
+            const statToday = document.getElementById('stat-today');
+            if (statToday) statToday.textContent = todayTotal;
+            const statDone = document.getElementById('stat-done');
+            if (statDone) statDone.textContent = todayDone;
+            const statPending = document.getElementById('stat-pending');
+            if (statPending) statPending.textContent = todayConfirmed;
         }
 
 
@@ -1275,15 +1380,62 @@
         // ── Monthly summary month switcher ──
         const _now = new Date();
         let summaryDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
-        function shiftSummaryMonth(dir) {
-            summaryDate.setMonth(summaryDate.getMonth() + dir);
+
+        function renderMonthlySummary() {
             const lang = localStorage.getItem('lang') || 'th';
             const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             const monthsTh = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
             const monthsStr = lang === 'en' ? monthsEn : monthsTh;
             const yearStr = lang === 'en' ? summaryDate.getFullYear() : summaryDate.getFullYear() + 543;
-            document.getElementById('summary-month-label').textContent =
-                `${monthsStr[summaryDate.getMonth()]} ${yearStr}`;
+            const label = `${monthsStr[summaryDate.getMonth()]} ${yearStr}`;
+            document.getElementById('summary-month-label').textContent = label;
+
+            // Filter appointments for this month
+            const yr = summaryDate.getFullYear();
+            const mo = summaryDate.getMonth();
+            const monthPrefix = `${yr}-${String(mo + 1).padStart(2, '0')}`;
+            const monthAppts = allAppointments.filter(a => a.date && a.date.startsWith(monthPrefix));
+
+            const total = monthAppts.length;
+            const completed = monthAppts.filter(a => a.status === 'COMPLETED').length;
+            const cancelled = monthAppts.filter(a => a.status === 'CANCELLED').length;
+            const confirmed = monthAppts.filter(a => a.status === 'CONFIRMED').length;
+            const completionPct = total > 0 ? Math.round(completed / total * 100) : 0;
+            const cancelPct = total > 0 ? Math.round(cancelled / total * 100) : 0;
+
+            document.getElementById('sum-total').textContent = total;
+            document.getElementById('sum-total-sub').textContent = total > 0 ? `${label}` : '-';
+            document.getElementById('sum-completed').textContent = completed;
+            document.getElementById('sum-completed-sub').textContent = `${completionPct}% completion`;
+            document.getElementById('sum-cancelled').textContent = cancelled;
+            document.getElementById('sum-cancelled-sub').textContent = `${cancelPct}% rate`;
+            document.getElementById('sum-confirmed').textContent = confirmed;
+            document.getElementById('sum-confirmed-sub').textContent = lang === 'en' ? 'Upcoming' : 'รอรับบริการ';
+
+            // Weekly breakdown
+            const weekTitle = document.getElementById('sum-week-title');
+            if (weekTitle) weekTitle.textContent = lang === 'en' ? 'Appointments by Week' : 'นัดหมายรายสัปดาห์';
+            const weeks = [0, 0, 0, 0];
+            monthAppts.forEach(a => {
+                const day = new Date(a.date).getDate();
+                const wk = Math.min(Math.floor((day - 1) / 7), 3);
+                weeks[wk]++;
+            });
+            const maxWeek = Math.max(...weeks, 1);
+            for (let w = 0; w < 4; w++) {
+                const n = w + 1;
+                const lbl = document.getElementById(`sum-week${n}-label`);
+                const fill = document.getElementById(`sum-week${n}-fill`);
+                const val = document.getElementById(`sum-week${n}-val`);
+                if (lbl) lbl.textContent = lang === 'en' ? `Week ${n}` : `สัปดาห์ ${n}`;
+                if (fill) fill.style.width = `${Math.round(weeks[w] / maxWeek * 100)}%`;
+                if (val) val.textContent = weeks[w];
+            }
+        }
+
+        function shiftSummaryMonth(dir) {
+            summaryDate.setMonth(summaryDate.getMonth() + dir);
+            renderMonthlySummary();
         }
 
         // ── Delete Modals ──
@@ -1308,8 +1460,9 @@
                 currentPickerMonth = 11;
                 currentPickerYear--;
             }
-            const oldActiveStr = document.querySelector('.date-pill.active')?.getAttribute('data-date-id');
-            generateDatePicker(oldActiveStr);
+            activeDateFilter = 'ALL';
+            generateDatePicker('ALL');
+            applyFilters();
         }
 
         function nextPickerMonth() {
@@ -1318,8 +1471,9 @@
                 currentPickerMonth = 0;
                 currentPickerYear++;
             }
-            const oldActiveStr = document.querySelector('.date-pill.active')?.getAttribute('data-date-id');
-            generateDatePicker(oldActiveStr);
+            activeDateFilter = 'ALL';
+            generateDatePicker('ALL');
+            applyFilters();
         }
 
         // --- Date Picker Logic ---
@@ -1351,8 +1505,8 @@
                 }
 
                 // "All" button
-
-                // "All" button
+                const allWrap = document.createElement('div');
+                
                 const allBtn = document.createElement('div');
                 allBtn.className = 'date-pill' + (!activeDateStr || activeDateStr === 'ALL' ? ' active' : '');
                 allBtn.setAttribute('data-date-id', 'ALL');
@@ -1361,16 +1515,23 @@
                 <div class="date-pill-day" style="color:var(--ink-3);">${lblAll}</div>
                 <div class="date-pill-num"><span class="material-symbols-outlined" style="font-size:24px;">calendar_month</span></div>
             `;
-                container.appendChild(allBtn);
+                allWrap.appendChild(allBtn);
+                
+                const allBtnContainer = document.getElementById('all-btn-container');
+                if (allBtnContainer) {
+                    allBtnContainer.style.display = ''; // Ensure it's visible if it was hidden
+                    allBtnContainer.innerHTML = ''; // clear any existing
+                    allBtnContainer.appendChild(allWrap);
+                }
 
                 const today = new Date();
 
                 // Inject dates into dummy cards for demo before rendering
                 const dToday = new Date(today);
-                const strToday = dToday.toISOString().split('T')[0];
+                const strToday = `${dToday.getFullYear()}-${String(dToday.getMonth() + 1).padStart(2, '0')}-${String(dToday.getDate()).padStart(2, '0')}`;
                 const dTom = new Date(today);
                 dTom.setDate(dTom.getDate() + 1);
-                const strTom = dTom.toISOString().split('T')[0];
+                const strTom = `${dTom.getFullYear()}-${String(dTom.getMonth() + 1).padStart(2, '0')}-${String(dTom.getDate()).padStart(2, '0')}`;
 
                 document.querySelectorAll('[data-date="TODAY"]').forEach(el => el.setAttribute('data-date', strToday));
                 document.querySelectorAll('[data-date="TOMORROW"]').forEach(el => el.setAttribute('data-date', strTom));
@@ -1398,6 +1559,8 @@
                     const dayName = daysArr[dow];
                     const dateNum = dateObj.getDate();
                     const isSunday = dow === 0;
+                    
+                    const isToday = dateStr === `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
 
                     const count = counts[dateStr] || 0;
                     let countHtml = '';
@@ -1408,7 +1571,7 @@
                     }
 
                     const pill = document.createElement('div');
-                    pill.className = 'date-pill' + (isSunday ? ' faded' : '') + (activeDateStr === dateStr ? ' active' : '');
+                    pill.className = 'date-pill' + (isSunday ? ' faded' : '') + (activeDateStr === dateStr ? ' active' : '') + (isToday ? ' today' : '');
                     pill.setAttribute('data-date-id', dateStr);
                     pill.onclick = () => filterByDate(dateStr, pill);
 
@@ -1419,6 +1582,25 @@
                 `;
                     container.appendChild(pill);
                 }
+                // Scroll the active pill into view so the current date is centered
+                setTimeout(() => {
+                    let pillToScroll = container.querySelector('.date-pill.active');
+                    if (!pillToScroll || activeDateStr === 'ALL') {
+                        // If ALL is selected (or active pill not in scroll), try to center TODAY's date
+                        const dLocal = new Date();
+                        const todayStr = `${dLocal.getFullYear()}-${String(dLocal.getMonth() + 1).padStart(2, '0')}-${String(dLocal.getDate()).padStart(2, '0')}`;
+                        const todayPill = container.querySelector(`.date-pill[data-date-id="${todayStr}"]`);
+                        if (todayPill) {
+                            pillToScroll = todayPill;
+                        }
+                    }
+                    if (pillToScroll) {
+                        const containerWidth = container.offsetWidth;
+                        const pillCenter = pillToScroll.offsetLeft + (pillToScroll.offsetWidth / 2);
+                        const targetLeft = pillCenter - (containerWidth / 2);
+                        container.scrollTo({ left: targetLeft, behavior: 'smooth' });
+                    }
+                }, 100);
             } catch (err) {
                 alert("Date Picker Error: " + err.message + "\nLine: " + err.lineNumber);
                 console.error(err);
@@ -1451,52 +1633,91 @@
             handleEditPeopleChange();
         };
 
-        window.handleEditPeopleChange = function (initialName = null) {
+        window.handleEditPeopleChange = async function (initialName = null) {
             const input = document.getElementById('edit-num-people');
             if (!input) return;
             const val = parseInt(input.value, 10);
-
-            // Update time slots dynamically
-            let duration = 1;
-            if (val >= 4 && val <= 6) duration = 2;
-            else if (val === 7) duration = 3;
+            const dateInput = document.getElementById('edit-date');
+            const dateIso = dateInput.value;
 
             const timeContainer = document.getElementById('edit-time-slots-container');
             if (timeContainer) {
-                const activeTime = document.querySelector('input[name="edit-time"]:checked')?.value;
+                timeContainer.innerHTML = '<div style="grid-column: span 3; text-align:center; padding:12px; font-size:12px; color:var(--ink-3);">Loading availability...</div>';
+            }
+
+            // Fetch availability
+            let slots = [];
+            if (dateIso) {
+                try {
+                    const res = await fetch(`${window.API_BASE_URL}/v1/availability?date=${dateIso}&partySize=${val}`);
+                    if (res.ok) {
+                        const resData = await res.json();
+                        slots = resData.data?.slots || [];
+                    }
+                } catch (e) {
+                    console.error('Error fetching availability:', e);
+                }
+            }
+
+            if (timeContainer) {
+                let activeTime = document.querySelector('input[name="edit-time"]:checked')?.value;
+                if (!activeTime && window.editingApptActiveTime) {
+                    activeTime = window.editingApptActiveTime;
+                }
+                
                 timeContainer.innerHTML = '';
                 let checkedAdded = false;
+                
+                // We must store the originally selected time of the appointment being edited.
+                // We'll use window.editingApptOriginalTime and window.editingApptOriginalDate which we need to set in editAppointment()
+                const originalDate = window.editingApptOriginalDate;
+                const originalTime = window.editingApptOriginalTime;
+                
+                if (slots.length === 0) {
+                    timeContainer.innerHTML = '<div style="grid-column: span 3; text-align:center; padding:12px; font-size:12px; color:var(--ink-3);">No time slots available</div>';
+                } else {
+                    slots.forEach(slot => {
+                        const tVal = slot.startTime;
+                        const tId = 'et_' + tVal.replace(':', '_');
+                        
+                        // If this slot corresponds to the original appointment being edited, it should always be considered available
+                        let isAvailable = slot.available;
+                        if (originalDate === dateIso && originalTime >= slot.startTime && originalTime < slot.endTime) {
+                            isAvailable = true; // The slot occupied by the current appointment itself
+                        }
 
-                for (let hour = 9; hour <= 16; hour++) {
-                    const endHour = hour + duration;
-                    if (endHour > 17) continue;
-                    if (hour < 12 && endHour > 11) continue;
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = 'edit-time';
+                        radio.id = tId;
+                        radio.value = tVal;
+                        radio.className = 'time-radio';
+                        
+                        if (!isAvailable) {
+                            radio.disabled = true;
+                        } else if (activeTime === tVal || (!activeTime && !checkedAdded)) {
+                            radio.checked = true;
+                            checkedAdded = true;
+                        }
 
-                    const tVal = `${hour}:00`;
-                    const tId = 'et' + hour;
+                        const label = document.createElement('label');
+                        label.htmlFor = tId;
+                        label.className = 'time-label' + (!isAvailable ? ' disabled' : '');
+                        
+                        if (!isAvailable) {
+                            label.style.opacity = '0.5';
+                            label.style.pointerEvents = 'none';
+                            label.style.textDecoration = 'line-through';
+                        }
 
-                    const radio = document.createElement('input');
-                    radio.type = 'radio';
-                    radio.name = 'edit-time';
-                    radio.id = tId;
-                    radio.value = tVal;
-                    radio.className = 'time-radio';
-                    if (activeTime === tVal || (!activeTime && !checkedAdded)) {
-                        radio.checked = true;
-                        checkedAdded = true;
-                    }
+                        const span = document.createElement('span');
+                        span.className = 'time-text';
+                        span.textContent = `${slot.startTime} – ${slot.endTime}`;
 
-                    const label = document.createElement('label');
-                    label.htmlFor = tId;
-                    label.className = 'time-label';
-
-                    const span = document.createElement('span');
-                    span.className = 'time-text';
-                    span.textContent = `${hour.toString().padStart(2, '0')}:00 – ${endHour.toString().padStart(2, '0')}:00`;
-
-                    label.appendChild(span);
-                    timeContainer.appendChild(radio);
-                    timeContainer.appendChild(label);
+                        label.appendChild(span);
+                        timeContainer.appendChild(radio);
+                        timeContainer.appendChild(label);
+                    });
                 }
             }
 
@@ -1536,8 +1757,13 @@
             }
         };
 
-        function openEditModal(id, name, phone, pax, date, time, service) {
+        async function openEditModal(id, name, phone, pax, date, time, service) {
             window.editingAppointmentId = id;
+            window.editingApptOriginalDate = date;
+            window.editingApptOriginalTime = time;
+            // Also store it as the 'initial active time' to be selected after fetch
+            window.editingApptActiveTime = time;
+
             editModal.classList.add('open');
             document.body.style.overflow = 'hidden';
 
@@ -1551,21 +1777,19 @@
                 if (rad.value === service) rad.checked = true;
             });
 
-            // Generate name inputs & time slots
-            handleEditPeopleChange(name);
-
-            // Set the active time slot radio button
-            const hour = parseInt(time.split(':')[0]);
-            const radioEl = document.getElementById('et' + hour);
-            if (radioEl) {
-                radioEl.checked = true;
-            }
+            // Generate name inputs & time slots (will automatically select editingApptActiveTime)
+            await handleEditPeopleChange(name);
+            window.editingApptActiveTime = null; // clear it after first load
         }
 
         function closeEditModal() {
             editModal.classList.remove('open');
             document.body.style.overflow = '';
         }
+
+        document.getElementById('edit-date')?.addEventListener('change', () => {
+            handleEditPeopleChange();
+        });
 
         document.getElementById('edit-form')?.addEventListener('submit', async e => {
             e.preventDefault();
@@ -1591,8 +1815,8 @@
             const notes = `บริการ: ${serviceVal}\nผู้จอง: ${legalName}\nเบอร์โทร: ${phone}\n${guestNames}`;
 
             try {
-                const res = await fetch(`${window.API_BASE_URL}/v1/admin/appointments/${id}/reschedule`, {
-                    method: 'POST',
+                const res = await fetch(`${window.API_BASE_URL}/v1/admin/appointments/${id}`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${adminToken}`

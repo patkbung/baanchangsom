@@ -7,6 +7,7 @@
   <title>BaanChangSom — Custom Tailoring Bangkok</title>
   <link rel="stylesheet" href="style.css">
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="config.js"></script>
   <script src="lang.js"></script>
   <style>
     /* Hero */
@@ -304,7 +305,7 @@
 
 <body>
   <div class="top-fade"></div>
-  <a href="index.html" class="floating-logo">BaanChangSom</a>
+  <a href="index.html" class="floating-logo">B.</a>
   <!-- Navbar -->
   <nav class="navbar">
     <div class="nav-links">
@@ -497,11 +498,22 @@
       <span class="material-symbols-outlined"
         style="font-size:22px; font-variation-settings:'FILL' 1;">calendar_add_on</span>
     </a>
-    <a href="admin.html" class="bnav-item" id="nav-dynamic-item">
-      <span class="material-symbols-outlined bnav-icon" id="nav-dynamic-icon">calendar_month</span>
-      <span id="nav-dynamic-text" data-i18n="bnav-schedule">Schedule</span>
+    <a href="profile.html" class="bnav-item" id="nav-dynamic-item">
+      <span class="material-symbols-outlined bnav-icon" id="nav-dynamic-icon" style="font-variation-settings:'FILL' 1;">person</span>
+      <span id="nav-dynamic-text" data-i18n="bnav-profile">Profile</span>
     </a>
   </nav>
+
+  <script>
+    if (localStorage.getItem('isAdmin') === 'true') {
+      const dl = document.getElementById('nav-dynamic-item');
+      if (dl) dl.href = 'admin.html';
+      const di = document.getElementById('nav-dynamic-icon');
+      if (di) { di.textContent = 'calendar_month'; di.style.fontVariationSettings = ''; }
+      const dt = document.getElementById('nav-dynamic-text');
+      if (dt) dt.setAttribute('data-i18n', 'bnav-schedule');
+    }
+  </script>
 
   <script>
     // ── LIFF Profile ──
@@ -533,10 +545,12 @@
                 const dynamicIcon = document.getElementById('nav-dynamic-icon');
                 const dynamicText = document.getElementById('nav-dynamic-text');
                 if (res.ok) {
+                  localStorage.setItem('isAdmin', 'true');
                   if (dynamicLink) dynamicLink.href = 'admin.html';
-                  if (dynamicIcon) dynamicIcon.textContent = 'calendar_month';
+                  if (dynamicIcon) { dynamicIcon.textContent = 'calendar_month'; dynamicIcon.style.fontVariationSettings = ''; }
                   if (dynamicText) dynamicText.setAttribute('data-i18n', 'bnav-schedule');
                 } else {
+                  localStorage.removeItem('isAdmin');
                   if (dynamicLink) dynamicLink.href = 'profile.html';
                   if (dynamicIcon) {
                     dynamicIcon.textContent = 'person';
@@ -555,7 +569,12 @@
         }
       } catch (e) { 
         console.error('LIFF Error:', e);
-        alert('LIFF Error: ' + e.message);
+        if (e.message && (e.message.includes('revoked') || e.message.includes('expired'))) {
+          liff.logout();
+          window.location.reload();
+        } else {
+          alert('LIFF Error: ' + e.message);
+        }
       }
     }
 
