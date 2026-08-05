@@ -163,10 +163,7 @@
     </style>
 </head>
 <body>
-    <div id="global-loader" class="global-loader">
-        <div class="spinner"></div>
-        <div class="loader-text" data-i18n="loading">Loading...</div>
-    </div>
+
     <!-- Navbar -->
     <div class="top-fade"></div>
     <a href="index.html" class="floating-logo">B.</a>
@@ -323,6 +320,11 @@
                         })
                         .catch(err => console.error('Admin check failed:', err));
  
+                        const upcomingContainer = document.getElementById('upcoming');
+                        const historyContainer = document.getElementById('history');
+                        if (upcomingContainer) upcomingContainer.innerHTML = '<div style="text-align:center; padding:40px; color:var(--ink-3);"><div class="spinner" style="margin: 0 auto 10px auto; width:30px; height:30px;"></div><div data-i18n="loading">Loading...</div></div>';
+                        if (historyContainer) historyContainer.innerHTML = '<div style="text-align:center; padding:40px; color:var(--ink-3);"><div class="spinner" style="margin: 0 auto 10px auto; width:30px; height:30px;"></div><div data-i18n="loading">Loading...</div></div>';
+
                         // Fetch user's appointments from Backend
                         const apptRes = await fetch(`${window.API_BASE_URL}/v1/me/appointments`, {
                             headers: { 'Authorization': `Bearer ${token}` }
@@ -345,8 +347,6 @@
                     alert('LIFF Error: ' + e.message);
                 }
             } finally {
-                const loader = document.getElementById('global-loader');
-                if (loader) loader.classList.add('hidden');
             }
         }
         initLiff();

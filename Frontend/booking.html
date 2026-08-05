@@ -106,10 +106,7 @@
 </head>
 
 <body>
-  <div id="global-loader" class="global-loader">
-    <div class="spinner"></div>
-    <div class="loader-text" data-i18n="loading">Loading...</div>
-  </div>
+
   <div class="top-fade"></div>
   <a href="index.html" class="floating-logo">B.</a>
   <!-- Navbar -->
@@ -419,8 +416,6 @@
           alert('LIFF Error: ' + e.message);
         }
       } finally {
-        const loader = document.getElementById('global-loader');
-        if (loader) loader.classList.add('hidden');
       }
     })();
 
